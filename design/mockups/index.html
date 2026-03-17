@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinil Oh's Club - Listening Sessions</title>
+    <style>
+        /* ============================================
+           DESIGN SYSTEM - Web Brutalism + Indie Web
+           ============================================ */
+        
+        :root {
+            --bg: #F1EAD8;
+            --surface: #DBC091;
+            --primary: #5C3E28;
+            --dark: #27221C;
+            
+            --font-display: 'Courier New', 'Courier', monospace;
+            --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            
+            --spacing-unit: 8px;
+            --border-width: 2px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            color: var(--primary);
+            font-family: var(--font-body);
+            overflow: hidden;
+        }
+        
+        /* ============================================
+           TYPOGRAPHY
+           ============================================ */
+        
+        h1, h2, h3 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            line-height: 1;
+        }
+        
+        h2 {
+            font-size: clamp(1rem, 3vw, 1.75rem);
+        }
+        
+        h3 {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: var(--spacing-unit);
+        }
+        
+        p {
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        /* ============================================
+           LAYOUT - App Shell
+           ============================================ */
+        
+        body {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto 1fr auto;
+        }
+        
+        header {
+            background: var(--primary);
+            color: var(--bg);
+            padding: calc(var(--spacing-unit) * 2.5);
+            border-bottom: var(--border-width) solid var(--dark);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        header > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-unit);
+        }
+        
+        .logo {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 900;
+            word-spacing: 0.2em;
+        }
+        
+        .session-info {
+            text-align: right;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .session-info span {
+            display: block;
+        }
+        
+        .session-date {
+            font-size: 1.2rem;
+            font-family: var(--font-display);
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        header h1 {
+            color: var(--surface);
+            margin-bottom: var(--spacing-unit);
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+        }
+        
+        header p {
+            color: var(--bg);
+            max-width: 90%;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        main {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        footer {
+            background: var(--dark);
+            color: var(--bg);
+            padding: calc(var(--spacing-unit) * 1.5);
+            border-top: var(--border-width) solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            flex-wrap: wrap;
+            gap: var(--spacing-unit);
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: calc(var(--spacing-unit) * 2);
+        }
+        
+        a {
+            color: var(--surface);
+            text-decoration: none;
+            border-bottom: var(--border-width) solid transparent;
+            transition: border-color 0.2s;
+        }
+        
+        a:hover {
+            border-bottom-color: var(--surface);
+        }
+        
+        footer a {
+            color: var(--bg);
+            border-bottom-color: transparent;
+        }
+        
+        footer a:hover {
+            border-bottom-color: var(--bg);
+        }
+        
+        /* ============================================
+           DESKTOP LAYOUT (Dual Panel)
+           ============================================ */
+        
+        @media (min-width: 768px) {
+            main {
+                grid-template-columns: 300px 1fr;
+                gap: var(--border-width);
+                background: var(--primary);
+            }
+            
+            .playlist-panel, .detail-panel {
+                border-right: var(--border-width) solid var(--primary);
+                background: var(--bg);
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+            
+            .playlist-panel {
+                border-right-color: var(--primary);
+            }
+            
+            .detail-panel {
+                border-right: none;
+            }
+        }
+        
+        /* ============================================
+           PLAYLIST PANEL
+           ============================================ */
+        
+        .playlist-panel {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .playlist-panel {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+        
+        .playlist-header {
+            padding: calc(var(--spacing-unit) * 2);
+            border-bottom: var(--border-width) solid var(--primary);
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 10;
+        }
+        
+        .playlist-header h3 {
+            margin: 0;
+            color: var(--dark);
+        }
+        
+        .tracks-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .track-item {
+            padding: calc(var(--spacing-unit) * 1.5);
+            border-bottom: var(--border-width) solid var(--surface);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .track-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--dark);
+            transform: scaleY(0);
+            transition: transform 0.2s;
+            transform-origin: top;
+        }
+        
+        .track-item:hover {
+            background: var(--surface);
+        }
+        
+        .track-item:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .track-item.active {
+            background: var(--surface);
+        }
+        
+        .track-item.active::before {
+            transform: scaleY(1);
+        }
+        
+        .track-title {
+            font-family: var(--font-display);
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+        
+        .track-artist {
+            font-size: 0.8rem;
+            color: var(--primary);
+            opacity: 0.8;
+        }
+        
+        .track-number {
+            font-size: 0.75rem;
+            color: var(--primary);
+            opacity: 0.6;
+            font-family: var(--font-display);
+            margin-top: 4px;
+        }
+        
+        /* ============================================
+           DETAIL PANEL
+           ============================================ */
+        
+        .detail-panel {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .detail-panel {
+                display: flex;
+                flex-direction: column;
+                background: var(--bg);
+                padding: calc(var(--spacing-unit) * 2);
+                overflow-y: auto;
+            }
+        }
+        
+        .no-selection {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            opacity: 0.6;
+        }
+        
+        .no-selection p {
+            max-width: 200px;
+        }
+        
+        .track-detail {
+            animation: fadeInUp 0.4s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .cover-art-container {
+            margin-bottom: calc(var(--spacing-unit) * 3);
+            overflow: hidden;
+            max-width: 500px;
+        }
+        
+        .cover-art {
+            width: 100%;
+            aspect-ratio: 1;
+            background: var(--surface);
+            border: var(--border-width) solid var(--primary);
+            object-fit: cover;
+            display: block;
+            image-rendering: crisp-edges;
+        }
+        
+        @media (max-width: 767px) {
+            .cover-art-container {
+                max-width: 300px;
+                margin: 0 auto calc(var(--spacing-unit) * 2);
+            }
+        }
+        
+        .cover-placeholder {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, var(--surface) 25%, transparent 25%, transparent 75%, var(--surface) 75%, var(--surface)),
+                        linear-gradient(135deg, var(--surface) 25%, transparent 25%, transparent 75%, var(--surface) 75%, var(--surface));
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            background-color: var(--primary);
+            border: var(--border-width) solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--bg);
+            text-align: center;
+            padding: var(--spacing-unit);
+            min-height: 200px;
+        }
+        
+        @media (max-width: 767px) {
+            .cover-placeholder {
+                min-height: 300px;
+            }
+        }
+        
+        .track-meta {
+            margin-bottom: calc(var(--spacing-unit) * 2);
+        }
+        
+        .track-meta h2 {
+            color: var(--dark);
+            margin-bottom: var(--spacing-unit);
+            border-bottom: var(--border-width) solid var(--primary);
+            padding-bottom: var(--spacing-unit);
+        }
+        
+        .meta-row {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: var(--spacing-unit);
+            margin-bottom: calc(var(--spacing-unit) * 1.5);
+            font-size: 0.9rem;
+        }
+        
+        .meta-label {
+            font-family: var(--font-display);
+            font-weight: bold;
+            color: var(--dark);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        
+        .meta-value {
+            color: var(--primary);
+        }
+        
+        /* ============================================
+           MOBILE LAYOUT (Card Overlay)
+           ============================================ */
+        
+        @media (max-width: 767px) {
+            body {
+                grid-template-rows: auto 1fr auto;
+            }
+            
+            main {
+                grid-template-columns: 1fr;
+                min-height: 0;
+            }
+            
+            .playlist-panel {
+                display: grid;
+                grid-template-rows: auto 1fr;
+                min-height: 0;
+            }
+            
+            .playlist-header {
+                padding: calc(var(--spacing-unit) * 2);
+                border-bottom: var(--border-width) solid var(--primary);
+                flex-shrink: 0;
+            }
+            
+            .tracks-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: var(--border-width);
+                padding: var(--border-width);
+                background: var(--primary);
+                overflow-y: auto;
+                overflow-x: hidden;
+                align-content: start;
+                min-height: 0;
+            }
+            
+            .track-item {
+                display: flex;
+                flex-direction: column;
+                border: none;
+                border: var(--border-width) solid var(--primary);
+                background: var(--surface);
+                padding: var(--spacing-unit);
+                cursor: pointer;
+                position: relative;
+                overflow: visible;
+            }
+            
+            .track-item::before {
+                display: none;
+            }
+            
+            .track-item.active {
+                background: var(--primary);
+                color: var(--bg);
+                z-index: 100;
+            }
+            
+            .track-item.active .track-title,
+            .track-item.active .track-artist,
+            .track-item.active .track-number {
+                color: var(--bg);
+            }
+            
+            .detail-panel {
+                display: none;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                height: calc(100% - 60px);
+                background: var(--bg);
+                z-index: 1000;
+                border-top: var(--border-width) solid var(--primary);
+                border-radius: 12px 12px 0 0;
+                animation: slideUpMobile 0.3s ease-out;
+                padding: calc(var(--spacing-unit) * 2);
+                overflow-y: auto;
+                overflow-x: hidden;
+                flex-direction: column;
+            }
+            
+            .detail-panel.open {
+                display: flex;
+            }
+            
+            @keyframes slideUpMobile {
+                from {
+                    transform: translateY(100%);
+                }
+                to {
+                    transform: translateY(0);
+                }
+            }
+            
+            .detail-close {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: calc(var(--spacing-unit) * 2);
+                padding-bottom: calc(var(--spacing-unit) * 1.5);
+                border-bottom: var(--border-width) solid var(--primary);
+            }
+            
+            .detail-close h3 {
+                margin: 0;
+            }
+            
+            .close-btn {
+                background: var(--primary);
+                color: var(--bg);
+                border: none;
+                width: 32px;
+                height: 32px;
+                cursor: pointer;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+                font-family: var(--font-display);
+            }
+            
+            .close-btn:hover {
+                background: var(--dark);
+            }
+            
+            .cover-art-container {
+                margin-bottom: calc(var(--spacing-unit) * 2);
+            }
+            
+            .cover-art, .cover-placeholder {
+                max-width: 300px;
+                margin: 0 auto;
+            }
+        }
+        
+        /* ============================================
+           SCROLLBAR STYLING
+           ============================================ */
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--dark);
+        }
+        
+        /* ============================================
+           MODAL / POPUP - Club Info
+           ============================================ */
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-unit);
+            animation: fadeIn 0.2s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal.open {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg);
+            padding: calc(var(--spacing-unit) * 3);
+            border: var(--border-width) solid var(--primary);
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: scaleIn 0.3s ease-out;
+            position: relative;
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: calc(var(--spacing-unit) * 2);
+            border-bottom: var(--border-width) solid var(--primary);
+            padding-bottom: var(--spacing-unit);
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: var(--dark);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary);
+            font-family: var(--font-display);
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: var(--dark);
+        }
+        
+        .modal-body {
+            color: var(--primary);
+        }
+        
+        .modal-body p {
+            margin-bottom: calc(var(--spacing-unit) * 1.5);
+        }
+        
+        /* ============================================
+           BUTTON STYLING
+           ============================================ */
+        
+        button {
+            background: var(--primary);
+            color: var(--bg);
+            border: var(--border-width) solid var(--primary);
+            padding: calc(var(--spacing-unit) * 0.75) calc(var(--spacing-unit) * 1.5);
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: var(--dark);
+            border-color: var(--dark);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--bg);
+        }
+        
+        /* ============================================
+           TIDAL PLAYER INTEGRATION
+           ============================================ */
+        
+         .tidal-player-container {
+             margin-top: calc(var(--spacing-unit) * 2);
+             padding-top: calc(var(--spacing-unit) * 1);
+             border-top: var(--border-width) solid var(--primary);
+             position: relative;
+         }
+         
+         .player-label {
+             font-family: var(--font-display);
+             font-size: 0.75rem;
+             text-transform: uppercase;
+             letter-spacing: 2px;
+             color: var(--dark);
+             margin-bottom: calc(var(--spacing-unit) * 0.75);
+             display: block;
+             font-weight: bold;
+         }
+         
+         .tidal-embed-wrapper {
+             position: relative;
+             overflow: hidden;
+             border-radius: 1px;
+             animation: slideInPlayer 0.5s ease-out 0.3s both;
+             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+         }
+         
+         @keyframes slideInPlayer {
+             from {
+                 opacity: 0;
+                 transform: translateY(20px);
+             }
+             to {
+                 opacity: 1;
+                 transform: translateY(0);
+             }
+         }
+         
+         .tidal-embed-wrapper iframe {
+             display: block;
+             border: var(--border-width) solid var(--primary);
+             background: var(--surface);
+             max-width: 100%;
+             width: 100%;
+             height: 120px;
+         }
+         
+         .player-context {
+             margin-top: calc(var(--spacing-unit) * 1);
+             padding: calc(var(--spacing-unit) * 1);
+             background: linear-gradient(135deg, var(--surface) 0%, rgba(219, 192, 145, 0.5) 100%);
+             border: var(--border-width) solid var(--primary);
+             border-left: var(--border-width) solid var(--primary);
+             border-right: none;
+             border-radius: 0;
+             font-size: 0.8rem;
+             color: var(--primary);
+             position: relative;
+             overflow: hidden;
+         }
+         
+         .player-context::before {
+             content: '';
+             position: absolute;
+             left: 0;
+             top: 0;
+             bottom: 0;
+             width: 3px;
+             background: var(--dark);
+         }
+         
+         .player-context-label {
+             font-family: var(--font-display);
+             font-size: 0.7rem;
+             text-transform: uppercase;
+             letter-spacing: 1px;
+             color: var(--dark);
+             margin-bottom: 6px;
+             display: block;
+             font-weight: bold;
+             position: relative;
+             z-index: 1;
+         }
+         
+         .player-context p {
+             margin: 0;
+             font-size: 0.8rem;
+             line-height: 1.4;
+             position: relative;
+             z-index: 1;
+         }
+        
+         /* Mobile optimizations */
+         @media (max-width: 767px) {
+             .tidal-player-container {
+                 margin-top: calc(var(--spacing-unit) * 1.5);
+                 padding-top: calc(var(--spacing-unit) * 0.75);
+             }
+             
+             .tidal-embed-wrapper iframe {
+                 height: 120px;
+             }
+             
+             .player-context {
+                 padding: calc(var(--spacing-unit) * 0.75);
+             }
+         }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="header-top">
+            <div class="logo">VINIL<br>OH'S<br>CLUB</div>
+            <div class="session-info">
+                <span class="session-date" id="sessionDate">LOADING</span>
+                <span>Last Session</span>
+            </div>
+        </div>
+        <h1>Listening Session</h1>
+        <p id="clubDescription">Loading club description...</p>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- PLAYLIST PANEL (Left on desktop, top on mobile) -->
+        <div class="playlist-panel">
+            <div class="playlist-header">
+                <h3 id="trackCount">0 tracks</h3>
+            </div>
+            <div class="tracks-list" id="tracksList">
+                <!-- Tracks will be populated here -->
+            </div>
+        </div>
+
+        <!-- DETAIL PANEL (Right on desktop, overlay on mobile) -->
+        <div class="detail-panel" id="detailPanel">
+            <div class="no-selection" id="noSelection">
+                <p>Select a track to view details</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div>© 2024 Vinil Oh's Club — Listening Sessions</div>
+        <div class="footer-links">
+            <a href="#" id="clubInfoBtn">About Club</a>
+            <a href="https://www.instagram.com/vinilohsclub/" target="_blank">Instagram</a>
+            <a href="#" id="donateBtn">Support</a>
+        </div>
+    </footer>
+
+    <!-- MODAL - Club Info -->
+    <div class="modal" id="clubModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>About Vinil Oh's Club</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA MANAGEMENT
+        // ============================================
+        
+        // Mock data - later will come from API
+        // Tidal track IDs for embedding
+         const mockTracks = [
+             {
+                 id: 1,
+                 title: "Levitating",
+                 artist: "Dua Lipa",
+                 album: "Future Nostalgia",
+                 tidal_id: 100893567,
+                 coverArts: [{ href: "https://resources.tidal.com/images/8edf737f/51da/4c88/9e1a/82c4a0e2f024/750x750.jpg" }]
+             },
+             {
+                 id: 2,
+                 title: "Blinding Lights",
+                 artist: "The Weeknd",
+                 album: "After Hours",
+                 tidal_id: 135086014,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=After+Hours" }]
+             },
+             {
+                 id: 3,
+                 title: "Good as Hell",
+                 artist: "Lizzo",
+                 album: "Cuz I Love You",
+                 tidal_id: 104548995,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Cuz+I+Love+You" }]
+             },
+             {
+                 id: 4,
+                 title: "Watermelon Sugar",
+                 artist: "Harry Styles",
+                 album: "Fine Line",
+                 tidal_id: 118672573,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Fine+Line" }]
+             },
+             {
+                 id: 5,
+                 title: "Physical",
+                 artist: "Dua Lipa",
+                 album: "Future Nostalgia",
+                 tidal_id: 102191276,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Future+Nostalgia+2" }]
+             },
+             {
+                 id: 6,
+                 title: "As It Was",
+                 artist: "Harry Styles",
+                 album: "Harry's House",
+                 tidal_id: 228128533,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Harrys+House" }]
+             },
+             {
+                 id: 7,
+                 title: "Anti-Hero",
+                 artist: "Taylor Swift",
+                 album: "Midnights",
+                 tidal_id: 295663842,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Midnights" }]
+             },
+             {
+                 id: 8,
+                 title: "Heat Waves",
+                 artist: "Glass Animals",
+                 album: "Dreamland",
+                 tidal_id: 157877203,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Dreamland" }]
+             },
+             {
+                 id: 9,
+                 title: "Sunroof",
+                 artist: "Nicky Youre",
+                 album: "Single",
+                 tidal_id: 387254803,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Sunroof" }]
+             },
+             {
+                 id: 10,
+                 title: "Kill Bill",
+                 artist: "SZA",
+                 album: "SOS",
+                 tidal_id: 291387008,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=SOS" }]
+             },
+             {
+                 id: 11,
+                 title: "Flowers",
+                 artist: "Miley Cyrus",
+                 album: "Endless Summer Vacation",
+                 tidal_id: 348711261,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Flowers" }]
+             },
+             {
+                 id: 12,
+                 title: "Vampire",
+                 artist: "Olivia Rodrigo",
+                 album: "GUTS",
+                 tidal_id: 297516533,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=GUTS" }]
+             },
+             {
+                 id: 13,
+                 title: "Cruel Summer",
+                 artist: "Taylor Swift",
+                 album: "Lover",
+                 tidal_id: 97258513,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Lover" }]
+             },
+             {
+                 id: 14,
+                 title: "Don't Start Now",
+                 artist: "Dua Lipa",
+                 album: "Future Nostalgia",
+                 tidal_id: 100293393,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Future+Nostalgia+3" }]
+             },
+             {
+                 id: 15,
+                 title: "Peaches",
+                 artist: "Justin Bieber ft. Daniel Caesar & Giveon",
+                 album: "Justice",
+                 tidal_id: 173062170,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Justice" }]
+             },
+             {
+                 id: 16,
+                 title: "drivers license",
+                 artist: "Olivia Rodrigo",
+                 album: "SOUR",
+                 tidal_id: 154814046,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=SOUR" }]
+             },
+             {
+                 id: 17,
+                 title: "Starlight",
+                 artist: "Taylor Swift",
+                 album: "Red (Taylor's Version)",
+                 tidal_id: 192419635,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Red+Taylor" }]
+             },
+             {
+                 id: 18,
+                 title: "good 4 u",
+                 artist: "Olivia Rodrigo",
+                 album: "SOUR",
+                 tidal_id: 154814052,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=SOUR+2" }]
+             },
+             {
+                 id: 19,
+                 title: "Running Up That Hill",
+                 artist: "Chromatics",
+                 album: "Chromatics",
+                 tidal_id: 3133407,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Running+Up" }]
+             },
+             {
+                 id: 20,
+                 title: "Stranger Things",
+                 artist: "Kyle Dixon & Michael Stein",
+                 album: "Stranger Things: Soundtrack",
+                 tidal_id: 59602841,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Stranger+Things" }]
+             },
+             {
+                 id: 21,
+                 title: "One Dance",
+                 artist: "Drake ft. Wizkid & Kyla",
+                 album: "Views",
+                 tidal_id: 55639907,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Views" }]
+             },
+             {
+                 id: 22,
+                 title: "Good as Hell (Remix)",
+                 artist: "Lizzo ft. Ariana Grande",
+                 album: "Cuz I Love You Too",
+                 tidal_id: 113265305,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Cuz+I+Love+2" }]
+             },
+             {
+                 id: 23,
+                 title: "Jasmine Green Tea",
+                 artist: "Dayglow",
+                 album: "Fuzz",
+                 tidal_id: 184626659,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Jasmine+Green" }]
+             },
+             {
+                 id: 24,
+                 title: "Electric Feel",
+                 artist: "MGMT",
+                 album: "Oracular Spectacular",
+                 tidal_id: 3139224,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Oracular" }]
+             },
+             {
+                 id: 25,
+                 title: "Nights",
+                 artist: "Frank Ocean",
+                 album: "Blonde",
+                 tidal_id: 72484737,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Blonde" }]
+             },
+             {
+                 id: 26,
+                 title: "Pink + White",
+                 artist: "Frank Ocean",
+                 album: "Blonde",
+                 tidal_id: 72484741,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Blonde+2" }]
+             },
+             {
+                 id: 27,
+                 title: "Ivy",
+                 artist: "Frank Ocean",
+                 album: "Blonde",
+                 tidal_id: 72484750,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Blonde+3" }]
+             },
+             {
+                 id: 28,
+                 title: "Summertime Sadness",
+                 artist: "Lana Del Rey",
+                 album: "Born to Die",
+                 tidal_id: 4297299,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Born+to+Die" }]
+             },
+             {
+                 id: 29,
+                 title: "Young and Beautiful",
+                 artist: "Lana Del Rey",
+                 album: "Paradise",
+                 tidal_id: 29308627,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Paradise" }]
+             },
+             {
+                 id: 30,
+                 title: "Video Games",
+                 artist: "Lana Del Rey",
+                 album: "Born to Die",
+                 tidal_id: 4297300,
+                 coverArts: [{ href: "https://via.placeholder.com/300x300?text=Video+Games" }]
+             },
+        ];
+
+        const clubDescription = "Vinil Oh's Club un espacio para amantes de la música y coleccionistas, en físico y digital, donde lo más importante es la tolerancia y el descubrimiento. En esta última sesión nuestros asistentes nos recomendaron las siguientes canciones, porque la buena música siempre viene de las personas adecuadas.";
+
+        let selectedTrackId = null;
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        
+        function init() {
+            renderTracks();
+            setupEventListeners();
+            setSessionDate();
+            setupClubInfo();
+        }
+
+        function setSessionDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            document.getElementById('sessionDate').textContent = `${day}.${month}.${year}`;
+            document.getElementById('clubDescription').textContent = clubDescription;
+        }
+
+        function setupClubInfo() {
+            document.getElementById('modalBody').innerHTML = `
+                <p>${clubDescription}</p>
+                <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Connect with us</h3>
+                <p>
+                    <a href="https://www.instagram.com/vinilohsclub/" target="_blank" style="display: block; margin-bottom: 0.5rem;">→ Instagram: @vinilohsclub</a>
+                </p>
+                <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 1.5rem;">
+                    Patreon support coming soon
+                </p>
+            `;
+        }
+
+        // ============================================
+        // RENDERING
+        // ============================================
+        
+        function renderTracks() {
+            const tracksList = document.getElementById('tracksList');
+            tracksList.innerHTML = mockTracks.map((track, index) => `
+                <div class="track-item" data-id="${track.id}" data-index="${index}">
+                    <div class="track-title">${track.title}</div>
+                    <div class="track-artist">${track.artist}</div>
+                    <div class="track-number">#${index + 1}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('trackCount').textContent = `${mockTracks.length} tracks`;
+        }
+
+        function renderTrackDetail(trackId) {
+             const track = mockTracks.find(t => t.id === trackId);
+             if (!track) return;
+
+             const detailPanel = document.getElementById('detailPanel');
+             const coverUrl = track.coverArts?.[0]?.href;
+             
+             const coverHtml = coverUrl 
+                 ? `<img src="${coverUrl}" alt="${track.album}" class="cover-art" onerror="this.replaceWith(createPlaceholder())" />`
+                 : `<div class="cover-placeholder">No Cover Available</div>`;
+             
+             // Tidal player embed
+             const tidal_id = track.tidal_id;
+             const playerHtml = tidal_id ? `
+                 <div class="tidal-player-container">
+                     <label class="player-label">Play on Tidal</label>
+                     <div class="tidal-embed-wrapper">
+                         <iframe src="https://embed.tidal.com/tracks/${tidal_id}" width="100%" height="120" allow="encrypted-media; fullscreen; clipboard-write https://embed.tidal.com; web-share" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox" style="color-scheme: dark" title="TIDAL Embed Player"></iframe>
+                     </div>
+                     <div class="player-context">
+                         <span class="player-context-label">Session Context</span>
+                         <p>This track was recommended during a recent listening session at Vinil Oh's Club. Click play to enjoy on Tidal.</p>
+                     </div>
+                 </div>
+             ` : '';
+
+             detailPanel.innerHTML = `
+                 <div class="track-detail">
+                     <div class="cover-art-container">
+                         ${coverHtml}
+                     </div>
+                     <div class="track-meta">
+                         <h2>${track.title}</h2>
+                         <div class="meta-row">
+                             <div class="meta-label">Artist</div>
+                             <div class="meta-value">${track.artist}</div>
+                         </div>
+                         <div class="meta-row">
+                             <div class="meta-label">Album</div>
+                             <div class="meta-value">${track.album}</div>
+                         </div>
+                         <div class="meta-row">
+                             <div class="meta-label">Order</div>
+                             <div class="meta-value">#${mockTracks.indexOf(track) + 1}</div>
+                         </div>
+                     </div>
+                     ${playerHtml}
+                 </div>
+             `;
+         }
+
+        // ============================================
+        // EVENT HANDLERS
+        // ============================================
+        
+        function setupEventListeners() {
+            // Track selection
+            document.getElementById('tracksList').addEventListener('click', (e) => {
+                const trackItem = e.target.closest('.track-item');
+                if (!trackItem) return;
+
+                const trackId = parseInt(trackItem.dataset.id);
+                selectTrack(trackId);
+            });
+
+            // Modal handlers
+            document.getElementById('clubInfoBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal();
+            });
+
+            document.getElementById('donateBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Patreon coming soon! Follow our Instagram for updates.');
+            });
+
+            // Modal close on background click
+            document.getElementById('clubModal').addEventListener('click', (e) => {
+                if (e.target.id === 'clubModal') {
+                    closeModal();
+                }
+            });
+        }
+
+        function selectTrack(trackId) {
+            selectedTrackId = trackId;
+            
+            // Update active state in list
+            document.querySelectorAll('.track-item').forEach(item => {
+                item.classList.toggle('active', parseInt(item.dataset.id) === trackId);
+            });
+
+            // Render detail
+            renderTrackDetail(trackId);
+
+            // On mobile, show detail panel overlay
+            if (window.innerWidth < 768) {
+                const detailPanel = document.getElementById('detailPanel');
+                detailPanel.classList.add('open');
+                
+                // Insert close button for mobile
+                if (!detailPanel.querySelector('.detail-close')) {
+                    const closeDiv = document.createElement('div');
+                    closeDiv.className = 'detail-close';
+                    closeDiv.innerHTML = `
+                        <h3>Track Details</h3>
+                        <button class="close-btn" onclick="closeDetailPanel()">×</button>
+                    `;
+                    detailPanel.insertBefore(closeDiv, detailPanel.firstChild);
+                }
+            }
+        }
+
+        function closeDetailPanel() {
+            if (window.innerWidth < 768) {
+                document.getElementById('detailPanel').classList.remove('open');
+                document.querySelectorAll('.track-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                selectedTrackId = null;
+            }
+        }
+
+        function openModal() {
+            document.getElementById('clubModal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('clubModal').classList.remove('open');
+        }
+
+        function createPlaceholder() {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'cover-placeholder';
+            placeholder.textContent = 'No Cover';
+            return placeholder;
+        }
+
+        // ============================================
+        // RESPONSIVE HANDLING
+        // ============================================
+        
+        window.addEventListener('resize', () => {
+            // Clear mobile-specific UI on resize to desktop
+            if (window.innerWidth >= 768) {
+                document.getElementById('detailPanel').classList.remove('open');
+                document.querySelectorAll('.detail-close').forEach(el => el.remove());
+                if (selectedTrackId) {
+                    renderTrackDetail(selectedTrackId);
+                }
+            }
+        });
+
+        // ============================================
+        // START
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

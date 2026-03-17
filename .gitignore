@@ -1,0 +1,77 @@
+# ============================================
+# Dependencies & Lock Files
+# ============================================
+node_modules/
+*.lock
+bun.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============================================
+# OpenCode & Framework (Internal)
+# ============================================
+.opencode/
+.agents/
+openspec/
+skills-lock.json
+
+# ============================================
+# IDE & Editor Files
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Temporary & Generated Files
+# ============================================
+*.tmp
+*.temp
+*.log
+*.pid
+*.seed
+*.pid.lock
+dist/
+build/
+.cache/
+
+# ============================================
+# Screenshots & Media (Temporary)
+# ============================================
+Pasted*
+*.png
+*.jpg
+*.jpeg
+*.gif
+.screenshots/
+
+# ============================================
+# Environment Variables (Secrets)
+# ============================================
+.env
+.env.local
+.env.*.local
+
+# ============================================
+# OS Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ============================================
+# Backup Files
+# ============================================
+*.bak
+*.backup
+*~
+*.orig
