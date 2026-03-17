@@ -39,9 +39,12 @@ Un mockup de single-page app para Vinil Oh's Club con aesthetic de **Web Brutali
    - Indicador visual de canción seleccionada (barra lateral)
 
 3. **Detail Panel**:
-   - Portada del álbum
-   - Información de la canción (título, artista, álbum, posición)
-   - Transiciones suaves al cambiar
+    - **Desktop**: Layout de grid con portada a la izquierda e info + player a la derecha
+    - **Mobile**: Layout vertical con portada arriba e info + player abajo
+    - Portada del álbum
+    - Información de la canción (título, artista, álbum, posición)
+    - Player de Tidal embedido (sin sección de contexto)
+    - Transiciones suaves al cambiar
 
 4. **Modal de Club Info**:
    - Popup con descripción completa
@@ -69,7 +72,7 @@ index.html          # Archivo único con HTML, CSS y JavaScript
 
 ## Mock Data
 
-Actualmente incluye 8 canciones de ejemplo. La estructura esperada de la API es:
+Actualmente incluye 30 canciones de ejemplo. La estructura esperada de la API es:
 
 ```typescript
 interface UserPlaylist {
@@ -97,10 +100,19 @@ interface PlaylistItemCoverArt {
 ## Notas de Desarrollo
 
 - El mockup es completamente responsive
-- Todos los datos de canción son placeholder (usar mock data)
+- 30 canciones incluidas con Tidal IDs reales
+- Layout dual-panel en desktop (300px + 1fr) con grid de cover/info/player
 - Las transiciones son CSS-only para mejor performance
 - El scrollbar es customizado para mantener la aesthetic
+- Player de Tidal integrado sin "Session Context"
 - Keyboard navigation puede ser mejorada en versiones futuras
+
+## Actualizaciones Recientes (v1.1)
+
+- ✅ Layout de grid en detail panel (desktop): cover + info/player lado a lado
+- ✅ Player de Tidal mejorado y simplificado (sin contexto)
+- ✅ 30 canciones en lugar de 8
+- ✅ Responsividad completamente optimizada
 
 ## Inspiración & Aesthetic
 
