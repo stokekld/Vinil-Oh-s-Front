@@ -4,6 +4,7 @@ import { TracksList } from './components/TracksList';
 import { TrackDetail } from './components/TrackDetail';
 import { Footer } from './components/Footer';
 import { Modal } from './components/Modal';
+import { TidalPlayer } from './components/TidalPlayer';
 import { useSession } from './hooks/useSession';
 
 const clubDescription = "Vinil Oh's Club un espacio para amantes de la música y coleccionistas, en físico y digital, donde lo más importante es la tolerancia y el descubrimiento. En esta última sesión nuestros asistentes nos recomendaron las siguientes canciones, porque la buena música siempre viene de las personas adecuadas.";
@@ -92,25 +93,28 @@ export function App() {
                       <div className="cover-placeholder">No Cover</div>
                     )}
                   </div>
-                  {selectedTrack && (
-                    <div className="track-meta">
-                      <h2>{selectedTrack.title}</h2>
-                      <div className="meta-row">
-                        <div className="meta-label">Artist</div>
-                        <div className="meta-value">{selectedTrack.artist}</div>
-                      </div>
-                      <div className="meta-row">
-                        <div className="meta-label">Album</div>
-                        <div className="meta-value">{selectedTrack.album}</div>
-                      </div>
-                      <div className="meta-row">
-                        <div className="meta-label">Order</div>
-                        <div className="meta-value">#{selectedIndex + 1}</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+                   {selectedTrack && (
+                     <>
+                       <div className="track-meta">
+                         <h2>{selectedTrack.title}</h2>
+                         <div className="meta-row">
+                           <div className="meta-label">Artist</div>
+                           <div className="meta-value">{selectedTrack.artist}</div>
+                         </div>
+                         <div className="meta-row">
+                           <div className="meta-label">Album</div>
+                           <div className="meta-value">{selectedTrack.album}</div>
+                         </div>
+                         <div className="meta-row">
+                           <div className="meta-label">Order</div>
+                           <div className="meta-value">#{selectedIndex + 1}</div>
+                         </div>
+                       </div>
+                       {selectedTrack.tidal_id && <TidalPlayer tidalId={selectedTrack.tidal_id} />}
+                     </>
+                   )}
+                 </div>
+               </div>
             )}
           </>
         )}

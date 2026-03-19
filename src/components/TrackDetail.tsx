@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Track } from '../types';
+import { TidalPlayer } from './TidalPlayer';
 
 interface TrackDetailProps {
   track: Track | null;
@@ -55,6 +56,7 @@ export function TrackDetail({ track, trackIndex }: TrackDetailProps) {
             <div className="meta-value">#{trackIndex + 1}</div>
           </div>
         </div>
+        {track.tidal_id && <TidalPlayer tidalId={track.tidal_id} />}
       </div>
     </div>
   );
