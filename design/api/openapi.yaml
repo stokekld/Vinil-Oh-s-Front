@@ -1,0 +1,554 @@
+openapi: 3.0.0
+info:
+  title: Vinil Ohs API
+  description: API for interacting with Tidal playlist data and session management
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+  - url: https://api.viniloh.com
+    description: Production server
+
+x-localhost-only: |
+  Some endpoints are restricted to localhost-only access (127.0.0.1 or ::1).
+  These endpoints cannot be accessed from remote IP addresses.
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Validates API and Tidal token status
+      operationId: getHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: ['ok', 'token_not_initialized']
+                    description: Current health status
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: ISO 8601 timestamp of health check
+                  expiresIn:
+                    type: integer
+                    description: Seconds until Tidal token expires (only if token exists)
+
+  /v1/session:
+    get:
+      summary: Get current session playlist
+      description: |
+        Retrieves the current session playlist stored in MongoDB.
+        Returns all playlist items currently saved in the playlist collection.
+        
+        **Public endpoint** - Accessible from any IP address.
+      operationId: getSession
+      tags:
+        - Session
+        - Playlists
+      responses:
+        '200':
+          description: Successfully retrieved session playlist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Playlist retrieved successfully'
+                  data:
+                    type: array
+                    description: Array of playlist items in the current session
+                    items:
+                      $ref: '#/components/schemas/UserPlaylist'
+                  itemsCount:
+                    type: integer
+                    description: Total number of items in the playlist
+                    example: 5
+              examples:
+                successWithItems:
+                  summary: Successful response with playlist items
+                  value:
+                    success: true
+                    message: 'Playlist retrieved successfully'
+                    data:
+                      - id: '86426609'
+                        title: 'Song Title'
+                        artist: 'Artist Name'
+                        album: 'Album Name'
+                        covertArts:
+                          - href: 'https://example.com/cover.jpg'
+                    itemsCount: 1
+                emptyPlaylist:
+                  summary: Successful response with no items
+                  value:
+                    success: true
+                    message: 'Playlist retrieved successfully'
+                    data: []
+                    itemsCount: 0
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: 'Internal Server Error'
+                message: 'An unexpected error occurred while retrieving the session.'
+
+  /v1/session/new:
+    post:
+      summary: Create a new session
+      description: |
+        **⚠️ LOCALHOST ONLY** - This endpoint is restricted to localhost access (127.0.0.1 or ::1).
+        
+        Creates a new session with playlist items data. Processes the provided playlist items and tracks,
+        matches them by ID, and regenerates the MongoDB playlist collection with the new data.
+        
+        Each time this endpoint is called, the entire playlist collection is cleared and recreated with fresh data.
+      operationId: createSession
+      tags:
+        - Session
+        - Playlists
+      requestBody:
+        required: true
+        description: Playlist items response from Tidal API
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistItemsResponse'
+            example:
+              numberOfItems: 2
+              data:
+                - id: '86426609'
+                  title: 'Song 1'
+                  artists:
+                    - name: 'Artist 1'
+                  albums:
+                    - title: 'Album 1'
+                      covertArts:
+                        - href: 'https://example.com/cover1.jpg'
+                - id: '86426610'
+                  title: 'Song 2'
+                  artists:
+                    - name: 'Artist 2'
+                  albums:
+                    - title: 'Album 2'
+                      covertArts:
+                        - href: 'https://example.com/cover2.jpg'
+              items:
+                - id: '86426609'
+                  type: 'track'
+                - id: '86426610'
+                  type: 'track'
+      responses:
+        '200':
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Session created'
+                  itemsCount:
+                    type: integer
+                    description: Number of items processed and saved to MongoDB
+                    example: 2
+              example:
+                success: true
+                message: 'Session created'
+                itemsCount: 2
+        '400':
+          description: Invalid request body or missing required fields
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Bad Request'
+                  message:
+                    type: string
+                    example: 'Missing required fields: items and data are required'
+              example:
+                error: 'Bad Request'
+                message: 'Missing required fields: items and data are required'
+        '403':
+          description: Forbidden - Request not from localhost
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Forbidden'
+                  message:
+                    type: string
+                    example: 'This endpoint is only accessible from localhost'
+              example:
+                error: 'Forbidden'
+                message: 'This endpoint is only accessible from localhost'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: 'Internal Server Error'
+                message: 'An unexpected error occurred while creating the session.'
+
+  /v1/tidal/playlist/{id}:
+    get:
+      summary: Get Tidal playlist items
+      description: |
+        **⚠️ LOCALHOST ONLY** - This endpoint is restricted to localhost access (127.0.0.1 or ::1).
+        
+        Fetches a Tidal playlist by ID and returns its items relationship data.
+        
+        This endpoint:
+        1. Validates the playlist ID is a valid UUID
+        2. Acquires a valid Tidal API token using the token manager
+        3. Requests playlist data from Tidal with proper authentication
+        4. Extracts and returns the playlist items relationship data
+        
+        ### Query Parameters
+        Automatically included by the server:
+        - `countryCode=MX` - Country code for playlist region
+        - `include=items` - Include items relationship in response
+        
+        ### Headers
+        Automatically included by the server:
+        - `Authorization: Bearer {token}` - Tidal API authentication token
+        - `accept: application/vnd.api+json` - JSON:API format request
+      operationId: getPlaylistItems
+      tags:
+        - Tidal
+        - Playlists
+      parameters:
+        - name: id
+          in: path
+          description: Tidal playlist UUID (e.g., 83ebc562-6c28-4f98-8d4e-ff7cb9844c06)
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: 83ebc562-6c28-4f98-8d4e-ff7cb9844c06
+      responses:
+        '200':
+          description: Successfully retrieved playlist items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of playlist items from relationships data
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: Unique identifier for the item
+                        type:
+                          type: string
+                          description: Type of the item (e.g., track, video)
+                      additionalProperties: true
+                      example:
+                        id: 'track-12345'
+                        type: 'track'
+              examples:
+                successWithItems:
+                  summary: Successful response with playlist items
+                  value:
+                    data:
+                      - id: '86426609'
+                        type: 'track'
+                      - id: '86426610'
+                        type: 'track'
+                emptyPlaylist:
+                  summary: Successful response with no items
+                  value:
+                    data: []
+
+        '400':
+          description: Invalid playlist ID format
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Bad Request'
+                  message:
+                    type: string
+                    example: 'Playlist ID must be a valid UUID format (e.g., 83ebc562-6c28-4f98-8d4e-ff7cb9844c06)'
+              example:
+                error: 'Bad Request'
+                message: 'Playlist ID must be a valid UUID format (e.g., 83ebc562-6c28-4f98-8d4e-ff7cb9844c06)'
+
+        '403':
+          description: Forbidden - Request not from localhost
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Forbidden'
+                  message:
+                    type: string
+                    example: 'This endpoint is only accessible from localhost'
+              example:
+                error: 'Forbidden'
+                message: 'This endpoint is only accessible from localhost'
+
+        '503':
+          description: Service Unavailable - Token manager failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Service Unavailable'
+                  message:
+                    type: string
+                    example: 'Failed to acquire Tidal API token. Please try again later.'
+              example:
+                error: 'Service Unavailable'
+                message: 'Failed to acquire Tidal API token. Please try again later.'
+
+        '504':
+          description: Gateway Timeout - Tidal API did not respond
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Gateway Timeout'
+                  message:
+                    type: string
+                    example: 'Tidal API request timed out. Please try again later.'
+              example:
+                error: 'Gateway Timeout'
+                message: 'Tidal API request timed out. Please try again later.'
+
+        '4xx':
+          description: Tidal API error (4xx response from Tidal)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 'Tidal API Error with HTTP status code'
+                  message:
+                    type: string
+                    description: Error message from Tidal API
+                  responseData:
+                    type: string
+                    description: Raw response body from Tidal API
+
+        '5xx':
+          description: Tidal API error (5xx response from Tidal)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 'Tidal API Error with HTTP status code'
+                  message:
+                    type: string
+                    description: Error message from Tidal API
+                  responseData:
+                    type: string
+                    description: Raw response body from Tidal API
+
+components:
+  schemas:
+    PlaylistItem:
+      type: object
+      description: A single item in a Tidal playlist
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the item
+        type:
+          type: string
+          description: Type of the item
+      additionalProperties: true
+
+    PlaylistItemArtist:
+      type: object
+      description: Artist information
+      properties:
+        name:
+          type: string
+          description: Artist name
+      additionalProperties: true
+
+    PlaylistItemCoverArt:
+      type: object
+      description: Cover art information
+      properties:
+        href:
+          type: string
+          format: uri
+          description: URL to the cover art image
+
+    PlaylistItemAlbum:
+      type: object
+      description: Album information
+      properties:
+        title:
+          type: string
+          description: Album title
+        covertArts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaylistItemCoverArt'
+          description: Array of cover art objects
+
+    PlaylistItemTrack:
+      type: object
+      description: Track information from Tidal
+      properties:
+        id:
+          type: string
+          description: Track ID
+        title:
+          type: string
+          description: Track title
+        artists:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaylistItemArtist'
+          description: Array of artists
+        albums:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaylistItemAlbum'
+          description: Array of albums
+      additionalProperties: true
+
+    PlaylistItemData:
+      type: object
+      description: Item data entry
+      properties:
+        id:
+          type: string
+          description: Item ID
+        type:
+          type: string
+          description: Item type
+        meta:
+          type: object
+          description: Additional metadata
+          properties:
+            itemId:
+              type: string
+            addedAt:
+              type: string
+      additionalProperties: true
+
+    PlaylistItemsResponse:
+      type: object
+      description: Response containing playlist items from Tidal
+      properties:
+        numberOfItems:
+          type: integer
+          description: Total number of items in the playlist
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaylistItemTrack'
+          description: Array of tracks in the playlist
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaylistItemData'
+          description: Array of item references
+      required:
+        - numberOfItems
+        - data
+        - items
+
+    UserPlaylist:
+      type: object
+      description: A playlist item as stored in the user session
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the track
+          example: '86426609'
+        title:
+          type: string
+          description: Track title
+          example: 'Song Title'
+        artist:
+          type: string
+          description: Artist name(s), comma-separated if multiple
+          example: 'Artist Name'
+        album:
+          type: string
+          description: Album title
+          example: 'Album Name'
+        covertArts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaylistItemCoverArt'
+          description: Array of cover art images
+          example:
+            - href: 'https://example.com/cover.jpg'
+
+    ErrorResponse:
+      type: object
+      description: Standard error response
+      properties:
+        error:
+          type: string
+          description: Error type/name
+        message:
+          type: string
+          description: Detailed error message
+      required:
+        - error
+        - message
+
+tags:
+  - name: Health
+    description: System health and status
+  - name: Session
+    description: Session management and playlist operations
+  - name: Tidal
+    description: Tidal API integration endpoints
+  - name: Playlists
+    description: Playlist operations (both Tidal and session playlists)
