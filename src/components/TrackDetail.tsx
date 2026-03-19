@@ -56,7 +56,7 @@ export function TrackDetail({ track, trackIndex }: TrackDetailProps) {
             <div className="meta-value">#{trackIndex + 1}</div>
           </div>
         </div>
-        {track.tidal_id && <TidalPlayer tidalId={track.tidal_id} />}
+        {track.id && <TidalPlayer tidalId={track.id} />}
       </div>
     </div>
   );

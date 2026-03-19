@@ -8,7 +8,6 @@ export interface Track {
   artist: string;
   album: string;
   covertArts: CoverArt[];
-  tidal_id?: string | number;
 }
 
 export interface SessionResponse {

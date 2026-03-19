@@ -110,7 +110,7 @@ export function App() {
                            <div className="meta-value">#{selectedIndex + 1}</div>
                          </div>
                        </div>
-                       {selectedTrack.tidal_id && <TidalPlayer tidalId={selectedTrack.tidal_id} />}
+                       {selectedTrack.id && <TidalPlayer tidalId={selectedTrack.id} />}
                      </>
                    )}
                  </div>
