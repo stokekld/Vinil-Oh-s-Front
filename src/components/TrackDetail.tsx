@@ -24,7 +24,7 @@ export function TrackDetail({ track, trackIndex }: TrackDetailProps) {
     );
   }
 
-  const coverUrl = track.covertArts?.[0]?.href;
+  const coverUrl = track.covertArts?.[3]?.href;
 
   return (
     <div className="detail-panel">
