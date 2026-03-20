@@ -1,20 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Track, SessionResponse } from '../types';
 
-function getApiBaseUrl(): string {
-  // En desarrollo, usar VITE_API_BASE_URL
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
-  }
-  
-  // En producción, construir URL usando el host actual
-  const protocol = window.location.protocol;
-  const hostname = window.location.hostname;
-  const port = 3000; // Puerto del backend
-  
-  // Si estamos en localhost, usar localhost; si es otra IP, usar esa IP
-  return `${protocol}//${hostname}:${port}`;
-}
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 export function useSession() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -25,8 +12,7 @@ export function useSession() {
     const fetchSession = async () => {
       try {
         setLoading(true);
-        const apiUrl = getApiBaseUrl();
-        const response = await fetch(`${apiUrl}/v1/session`);
+        const response = await fetch(`${API_BASE_URL}/v1/session`);
         
         if (!response.ok) {
           throw new Error(`Failed to fetch session: ${response.statusText}`);
