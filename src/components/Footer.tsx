@@ -6,7 +6,7 @@ interface FooterProps {
 export function Footer({ onAboutClick, onSupportClick }: FooterProps) {
   return (
     <footer>
-      <div>© 2024 Vinil Oh's Club — Listening Sessions</div>
+      <div>© 2025 Vinil Oh's Club — Listening Sessions</div>
       <div className="footer-links">
         <a href="#" onClick={(e) => { e.preventDefault(); onAboutClick(); }}>
           About Club

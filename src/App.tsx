@@ -7,7 +7,7 @@ import { Modal } from './components/Modal';
 import { TidalPlayer } from './components/TidalPlayer';
 import { useSession } from './hooks/useSession';
 
-const clubDescription = "Vinil Oh's Club un espacio para amantes de la música y coleccionistas, en físico y digital, donde lo más importante es la tolerancia y el descubrimiento. En esta última sesión nuestros asistentes nos recomendaron las siguientes canciones, porque la buena música siempre viene de las personas adecuadas.";
+const clubDescription = "En esta última sesión nuestros asistentes nos recomendaron las siguientes canciones, porque la buena música siempre viene de las personas adecuadas.";
 
 export function App() {
   const { tracks, loading, error } = useSession();
@@ -128,7 +128,7 @@ export function App() {
         title="About Vinil Oh's Club"
         onClose={() => setIsAboutModalOpen(false)}
       >
-        <p>{clubDescription}</p>
+        <p>Vinil Oh's Club un espacio para amantes de la música y coleccionistas, en físico y digital, donde lo más importante es la tolerancia y el descubrimiento.</p>
         <h3 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>Connect with us</h3>
         <p>
           <a href="https://www.instagram.com/vinilohsclub/" target="_blank" rel="noreferrer" style={{ display: 'block', marginBottom: '0.5rem' }}>
