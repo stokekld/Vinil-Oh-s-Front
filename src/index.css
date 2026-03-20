@@ -326,14 +326,6 @@ footer a:hover {
     overflow-y: auto;
     padding-right: calc(var(--spacing-unit) * 3);
   }
-  
-  .detail-panel.open {
-    display: flex;
-  }
-  
-  .detail-close {
-    display: none;
-  }
 }
 
 .no-selection {

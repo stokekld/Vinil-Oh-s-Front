@@ -5,17 +5,14 @@ import { TidalPlayer } from './TidalPlayer';
 interface TrackDetailProps {
   track: Track | null;
   trackIndex: number;
-  onClose?: () => void;
 }
 
-export function TrackDetail({ track, trackIndex, onClose }: TrackDetailProps) {
+export function TrackDetail({ track, trackIndex }: TrackDetailProps) {
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     setImageError(false);
   }, [track?.id]);
-
-  const isOpen = track !== null;
 
   if (!track) {
     return (
@@ -27,14 +24,10 @@ export function TrackDetail({ track, trackIndex, onClose }: TrackDetailProps) {
     );
   }
 
-  const coverUrl = track.covertArts?.[0]?.href;
+  const coverUrl = track.covertArts?.[3]?.href;
 
   return (
-    <div className={`detail-panel ${isOpen ? 'open' : ''}`}>
-      <div className="detail-close">
-        <h3>Track Details</h3>
-        <button className="close-btn" onClick={onClose}>×</button>
-      </div>
+    <div className="detail-panel">
       <div className="track-detail">
         <div className="cover-art-container">
           {coverUrl && !imageError ? (
