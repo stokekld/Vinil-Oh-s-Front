@@ -117,14 +117,6 @@
             word-spacing: 0.2em;
         }
         
-
-        
-        header h1 {
-            color: var(--surface);
-            margin-bottom: var(--spacing-unit);
-            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
-        }
-        
         header p {
             color: var(--bg);
             max-width: 90%;
@@ -1050,12 +1042,11 @@
         <div class="header-top">
             <div class="logo">VINIL<br>OH'S<br>CLUB</div>
         </div>
-        <h1 id="pageTitle">Listening Session</h1>
     </header>
 
     <!-- MAIN NAVIGATION -->
     <nav class="main-nav">
-        <a href="#" class="nav-link active" data-page="songs">Canciones</a>
+        <a href="#" class="nav-link active" data-page="songs">Última Sesión</a>
         <a href="#" class="nav-link" data-page="events">Eventos</a>
     </nav>
 
@@ -1099,11 +1090,10 @@
 
     <!-- FOOTER -->
     <footer>
-        <div>© 2024 Vinil Oh's Club — Listening Sessions</div>
         <div class="footer-links">
-            <a href="#" id="clubInfoBtn">About Club</a>
+            <a href="#" id="clubInfoBtn">About</a>
             <a href="https://www.instagram.com/vinilohsclub/" target="_blank">Instagram</a>
-            <a href="#" id="donateBtn">Support</a>
+            <a href="#">Support</a>
         </div>
     </footer>
 
@@ -1115,7 +1105,14 @@
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body" id="modalBody">
-                <p>Loading...</p>
+                <p>Vinil Oh's Club un espacio para amantes de la música y coleccionistas, en físico y digital, donde lo más importante es la tolerancia y el descubrimiento.</p>
+                <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Connect with us</h3>
+                <p>
+                    <a href="https://www.instagram.com/vinilohsclub/" target="_blank" style="display: block; margin-bottom: 0.5rem;">→ Instagram: @vinilohsclub</a>
+                </p>
+                <p>
+                    <a href="https://www.patreon.com/cw/VinilOhsClub/membership" target="_blank" style="display: block; margin-bottom: 0.5rem;">→ Patreon: VinilOhsClub</a>
+                </p>
             </div>
         </div>
     </div>
@@ -1230,8 +1227,6 @@
             }
         ];
 
-        const clubDescription = "Vinil Oh's Club un espacio para amantes de la música y coleccionistas, en físico y digital, donde lo más importante es la tolerancia y el descubrimiento. En esta última sesión nuestros asistentes nos recomendaron las siguientes canciones, porque la buena música siempre viene de las personas adecuadas.";
-
         let selectedTrackId = null;
         let currentFilter = 'today';
         let map = null;
@@ -1245,29 +1240,6 @@
         function init() {
             renderTracks();
             setupEventListeners();
-            setSessionDate();
-            setupClubInfo();
-        }
-
-        function setSessionDate() {
-            const today = new Date();
-            const day = String(today.getDate()).padStart(2, '0');
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const year = today.getFullYear();
-            document.getElementById('sessionDate').textContent = `${day}.${month}.${year}`;
-        }
-
-        function setupClubInfo() {
-            document.getElementById('modalBody').innerHTML = `
-                <p>${clubDescription}</p>
-                <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Connect with us</h3>
-                <p>
-                    <a href="https://www.instagram.com/vinilohsclub/" target="_blank" style="display: block; margin-bottom: 0.5rem;">→ Instagram: @vinilohsclub</a>
-                </p>
-                <p>
-                    <a href="https://www.patreon.com/cw/VinilOhsClub/membership" target="_blank" style="display: block; margin-bottom: 0.5rem;">→ Patreon: VinilOhsClub</a>
-                </p>
-            `;
         }
 
         // ============================================
@@ -1284,10 +1256,8 @@
             // Show selected main
             if (pageName === 'songs') {
                 document.getElementById('songs-main').style.display = 'grid';
-                document.getElementById('pageTitle').textContent = 'Listening Session';
             } else if (pageName === 'events') {
                 document.getElementById('events-main').style.display = 'grid';
-                document.getElementById('pageTitle').textContent = 'Local Events';
                 
                 // Initialize map if needed
                 if (!map) {
@@ -1554,11 +1524,6 @@
             document.getElementById('clubInfoBtn').addEventListener('click', (e) => {
                 e.preventDefault();
                 openModal();
-            });
-
-            document.getElementById('donateBtn').addEventListener('click', (e) => {
-                e.preventDefault();
-                alert('Patreon coming soon! Follow our Instagram for updates.');
             });
 
             // Modal close on background click
