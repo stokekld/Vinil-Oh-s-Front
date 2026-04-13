@@ -181,7 +181,7 @@ footer {
   padding: calc(var(--spacing-unit) * 1.5);
   border-top: var(--border-width) solid var(--primary);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   font-size: 0.8rem;
   flex-wrap: wrap;
@@ -191,6 +191,7 @@ footer {
 .footer-links {
   display: flex;
   gap: calc(var(--spacing-unit) * 2);
+  margin-left: auto;
 }
 
 a {
@@ -211,6 +212,38 @@ footer a {
 
 footer a:hover {
   border-bottom-color: var(--bg);
+}
+
+/* ============================================
+   DESKTOP LAYOUT (Dual Panel for Songs)
+   ============================================ */
+
+@media (min-width: 768px) {
+    #songs-main {
+        grid-template-columns: 300px 1fr;
+        gap: var(--border-width);
+        background: var(--primary);
+    }
+    
+    #songs-main .playlist-panel, 
+    #songs-main .detail-panel {
+        border-right: var(--border-width) solid var(--primary);
+        background: var(--bg);
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    
+    #songs-main .playlist-panel {
+        border-right-color: var(--primary);
+    }
+    
+    #songs-main .detail-panel {
+        border-right: none;
+    }
+    
+    #events-main {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ============================================
