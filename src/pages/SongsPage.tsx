@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { TracksList } from '../components/TracksList';
 import { TrackDetail } from '../components/TrackDetail';
+import { TidalPlayer } from '../components/TidalPlayer';
 import type { Track } from '../types';
 
 interface SongsPageProps {
@@ -96,6 +97,7 @@ export function SongsPage({ tracks, loading, error }: SongsPageProps) {
                         <div className="meta-value">#{selectedIndex + 1}</div>
                       </div>
                     </div>
+                    {selectedTrack.id && <TidalPlayer tidalId={selectedTrack.id} />}
                   </>
                 )}
               </div>
