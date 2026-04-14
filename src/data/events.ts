@@ -1,13 +1,13 @@
-import type { Venue } from '../types';
+import type { NormalizedVenue } from '../types';
 
 /**
- * Mock data de venues y eventos
+ * Mock data de venues y eventos - used as fallback when API is unavailable
  * Extraído del mockup: design/mockups/index-v2.html (líneas 1162-1229)
  * Ubicación: Tulancingo, Hidalgo, México
  * Período: 2026-03-28 a 2026-04-02
  */
 
-export const venues: Venue[] = [
+export const mockVenues: NormalizedVenue[] = [
   {
     id: 1,
     name: "Foro Indie",
@@ -147,7 +147,14 @@ export const venues: Venue[] = [
 ];
 
 /**
+ * Fallback venues exported for backwards compatibility
+ * @deprecated Use useEvents hook for API-fetched data
+ */
+export const venues = mockVenues;
+
+/**
  * Extrae todos los eventos de todas las venues en un array plano
+ * @deprecated Use useEvents hook for API-fetched data
  */
 export function getAllEvents() {
   return venues.flatMap(venue =>

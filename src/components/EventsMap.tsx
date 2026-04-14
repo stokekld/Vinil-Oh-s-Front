@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import type { Venue, Event } from '../types';
+import type { NormalizedVenue, Event } from '../types';
 
 // Fix for Leaflet default markers
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -12,7 +12,7 @@ L.Icon.Default.mergeOptions({
 });
 
 interface EventsMapProps {
-  venues: Venue[];
+  venues: NormalizedVenue[];
   filter: 'today' | 'week';
   selectedEventId: number | null;
   onEventSelect: (eventId: number) => void;
