@@ -16,3 +16,27 @@ export interface SessionResponse {
   data: Track[];
   itemsCount: number;
 }
+
+/* ============================================
+   EVENTS TYPES
+   ============================================ */
+
+export interface EventLink {
+  instagram?: string;
+  facebook?: string;
+}
+
+export interface Event {
+  id: number;
+  name: string;
+  date: string; // ISO format: "2026-03-28T20:00:00"
+  links: EventLink;
+}
+
+export interface Venue {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  events: Event[];
+}
