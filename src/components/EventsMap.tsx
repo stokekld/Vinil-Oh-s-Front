@@ -119,7 +119,7 @@ export function EventsMap({
  * Base date: 2026-03-28 (del mockup)
  */
 function isEventVisible(event: Event, filter: 'today' | 'week'): boolean {
-  const baseDate = new Date('2026-03-28');
+  const baseDate = new Date();
   baseDate.setHours(0, 0, 0, 0);
 
   const eventDate = new Date(event.date);
