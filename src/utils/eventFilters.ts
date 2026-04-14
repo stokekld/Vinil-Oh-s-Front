@@ -8,13 +8,15 @@ export function filterEventsByDate(
   venues: Venue[],
   filter: 'today' | 'week'
 ): Event[] {
-  const baseDate = new Date('2026-03-28');
+  const baseDate = new Date();
   baseDate.setHours(0, 0, 0, 0);
 
   const events: (Event & { venueName: string })[] = [];
+  let eventIdCounter = 0;
 
   venues.forEach((venue) => {
     venue.events.forEach((event) => {
+      event.id = eventIdCounter++;
       const eventDate = new Date(event.date);
       eventDate.setHours(0, 0, 0, 0);
 
