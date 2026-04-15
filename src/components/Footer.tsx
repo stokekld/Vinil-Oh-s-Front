@@ -1,20 +1,19 @@
 interface FooterProps {
   onAboutClick: () => void;
-  onSupportClick: () => void;
 }
 
-export function Footer({ onAboutClick, onSupportClick }: FooterProps) {
+export function Footer({ onAboutClick }: FooterProps) {
   return (
     <footer>
       <div className="footer-links">
         <a href="#" onClick={(e) => { e.preventDefault(); onAboutClick(); }}>
-          About Club
+          About
         </a>
         <a href="https://www.instagram.com/vinilohsclub/" target="_blank" rel="noreferrer">
           Instagram
         </a>
-        <a href="#" onClick={(e) => { e.preventDefault(); onSupportClick(); }}>
-          Support
+        <a href="mailto:hdjesus.flores@gmail.com" target="_blank" rel="noreferrer">
+          Soporte
         </a>
       </div>
     </footer>

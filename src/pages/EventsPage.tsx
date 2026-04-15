@@ -31,7 +31,7 @@ export function EventsPage({}: EventsPageProps) {
   return (
     <div className="events-container">
       <div className="events-header">
-        <h2>Local Events - Tulancingo</h2>
+        <h2>Eventos Locales - Tulancingo</h2>
         {error && (
           <div style={{ fontSize: '0.85rem', color: '#ff6b6b', marginBottom: '0.5rem' }}>
             Using offline data: {error}
@@ -43,20 +43,20 @@ export function EventsPage({}: EventsPageProps) {
           </div>
         )}
         <div className="filters">
-          <span className="filters-label">Filter:</span>
+          <span className="filters-label">Filtro:</span>
           <button
             className={`btn-filter ${filter === 'today' ? 'active' : ''}`}
             onClick={() => handleFilterChange('today')}
             disabled={loading && venues.length === 0}
           >
-            Today
+            Hoy
           </button>
           <button
             className={`btn-filter ${filter === 'week' ? 'active' : ''}`}
             onClick={() => handleFilterChange('week')}
             disabled={loading && venues.length === 0}
           >
-            This Week
+            Esta Semana
           </button>
         </div>
       </div>
