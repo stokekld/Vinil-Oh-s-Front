@@ -84,26 +84,26 @@ export function EventsMap({
                       minute: '2-digit',
                     })}
                   </p>
-                  {event.links.instagram && (
-                    <a
-                      href={event.links.instagram}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="event-popup-link"
-                    >
-                      Instagram →
-                    </a>
-                  )}
-                  {event.links.facebook && (
-                    <a
-                      href={event.links.facebook}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="event-popup-link"
-                    >
-                      Facebook →
-                    </a>
-                  )}
+                   {event.links.instagram && (
+                     <a
+                       href={event.links.instagram}
+                       target="_blank"
+                       rel="noreferrer"
+                       className="event-popup-link"
+                     >
+                       Instagram →
+                     </a>
+                   )}
+                   {event.links.facebook && (
+                     <a
+                       href={event.links.facebook}
+                       target="_blank"
+                       rel="noreferrer"
+                       className="event-popup-link"
+                     >
+                       Facebook →
+                     </a>
+                   )}
                 </div>
               </Popup>
             </Marker>
