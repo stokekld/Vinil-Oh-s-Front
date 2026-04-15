@@ -79,7 +79,10 @@ export function EventsMap({
                   <h3>{event.name}</h3>
                   <p className="event-popup-venue">{venue.name}</p>
                   <p className="event-popup-date">
-                    {eventDate.toLocaleDateString('es-MX')} · {eventDate.toLocaleTimeString('es-MX', {
+                    {eventDate.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
+                  </p>
+                  <p className="event-popup-time">
+                    {eventDate.toLocaleTimeString('es-MX', {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
@@ -91,7 +94,7 @@ export function EventsMap({
                        rel="noreferrer"
                        className="event-popup-link"
                      >
-                       Instagram →
+                       Link
                      </a>
                    )}
                    {event.links.facebook && (
@@ -101,7 +104,7 @@ export function EventsMap({
                        rel="noreferrer"
                        className="event-popup-link"
                      >
-                       Facebook →
+                       Link
                      </a>
                    )}
                 </div>
