@@ -117,13 +117,13 @@ export function EventsMap({
   );
 }
 
-/**
- * Filtra eventos por fecha según el filtro
- * Base date: 2026-03-28 (del mockup)
- */
 function isEventVisible(event: Event, filter: 'today' | 'week'): boolean {
   const baseDate = new Date();
   baseDate.setHours(0, 0, 0, 0);
+
+  const tomorrowBase = new Date();
+  tomorrowBase.setDate(tomorrowBase.getDate() + 1);
+  tomorrowBase.setHours(0, 0, 0, 0);
 
   const eventDate = new Date(event.date);
   eventDate.setHours(0, 0, 0, 0);
@@ -133,7 +133,7 @@ function isEventVisible(event: Event, filter: 'today' | 'week'): boolean {
   }
 
   if (filter === 'week') {
-    const weekEnd = new Date(baseDate);
+    const weekEnd = new Date(tomorrowBase);
     weekEnd.setDate(weekEnd.getDate() + 6);
     return eventDate >= baseDate && eventDate <= weekEnd;
   }
