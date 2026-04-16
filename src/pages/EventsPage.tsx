@@ -1,6 +1,5 @@
 import { useState, Suspense } from 'react';
 import { useEvents } from '../hooks/useEvents';
-import { mockVenues } from '../data/events';
 import { EventsMap } from '../components/EventsMap';
 import { EventsList } from '../components/EventsList';
 import { filterEventsByDate } from '../utils/eventFilters';
@@ -24,8 +23,7 @@ export function EventsPage({}: EventsPageProps) {
     setSelectedEventId(eventId);
   };
 
-  // Use fetched venues, fallback to mock data if loading or error
-  const venuesToDisplay = venues.length > 0 ? venues : mockVenues;
+  const venuesToDisplay = venues;
   const visibleEvents = filterEventsByDate(venuesToDisplay, filter);
 
   return (
