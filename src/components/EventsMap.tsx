@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import type { Venue, Event } from '../types';
+import type { NormalizedVenue, Event } from '../types';
 
 // Fix for Leaflet default markers
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -12,7 +12,7 @@ L.Icon.Default.mergeOptions({
 });
 
 interface EventsMapProps {
-  venues: Venue[];
+  venues: NormalizedVenue[];
   filter: 'today' | 'week';
   selectedEventId: number | null;
   onEventSelect: (eventId: number) => void;
@@ -79,31 +79,34 @@ export function EventsMap({
                   <h3>{event.name}</h3>
                   <p className="event-popup-venue">{venue.name}</p>
                   <p className="event-popup-date">
-                    {eventDate.toLocaleDateString('es-MX')} · {eventDate.toLocaleTimeString('es-MX', {
+                    {eventDate.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
+                  </p>
+                  <p className="event-popup-time">
+                    {eventDate.toLocaleTimeString('es-MX', {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
                   </p>
-                  {event.links.instagram && (
-                    <a
-                      href={event.links.instagram}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="event-popup-link"
-                    >
-                      Instagram →
-                    </a>
-                  )}
-                  {event.links.facebook && (
-                    <a
-                      href={event.links.facebook}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="event-popup-link"
-                    >
-                      Facebook →
-                    </a>
-                  )}
+                   {event.links.instagram && (
+                     <a
+                       href={event.links.instagram}
+                       target="_blank"
+                       rel="noreferrer"
+                       className="event-popup-link"
+                     >
+                       Link
+                     </a>
+                   )}
+                   {event.links.facebook && (
+                     <a
+                       href={event.links.facebook}
+                       target="_blank"
+                       rel="noreferrer"
+                       className="event-popup-link"
+                     >
+                       Link
+                     </a>
+                   )}
                 </div>
               </Popup>
             </Marker>
@@ -114,13 +117,13 @@ export function EventsMap({
   );
 }
 
-/**
- * Filtra eventos por fecha según el filtro
- * Base date: 2026-03-28 (del mockup)
- */
 function isEventVisible(event: Event, filter: 'today' | 'week'): boolean {
-  const baseDate = new Date('2026-03-28');
+  const baseDate = new Date();
   baseDate.setHours(0, 0, 0, 0);
+
+  const tomorrowBase = new Date();
+  tomorrowBase.setDate(tomorrowBase.getDate() + 1);
+  tomorrowBase.setHours(0, 0, 0, 0);
 
   const eventDate = new Date(event.date);
   eventDate.setHours(0, 0, 0, 0);
@@ -130,7 +133,7 @@ function isEventVisible(event: Event, filter: 'today' | 'week'): boolean {
   }
 
   if (filter === 'week') {
-    const weekEnd = new Date(baseDate);
+    const weekEnd = new Date(tomorrowBase);
     weekEnd.setDate(weekEnd.getDate() + 6);
     return eventDate >= baseDate && eventDate <= weekEnd;
   }

@@ -34,7 +34,26 @@ export interface Event {
 }
 
 export interface Venue {
+  id?: number; // Optional for API response
+  venueId?: string; // From API response
+  name: string;
+  lat?: number; // Optional for API
+  latitude?: number; // From API response
+  lng?: number; // Optional for API
+  longitude?: number; // From API response
+  events: Event[];
+}
+
+export interface ApiEventResponse {
+  success: boolean;
+  message: string;
+  data: Venue[];
+}
+
+// Fully normalized venue with guaranteed required fields
+export interface NormalizedVenue {
   id: number;
+  venueId?: string; // From API response
   name: string;
   lat: number;
   lng: number;

@@ -1,5 +1,6 @@
 import { useState, Suspense } from 'react';
-import { venues } from '../data/events';
+import { useEvents } from '../hooks/useEvents';
+import { mockVenues } from '../data/events';
 import { EventsMap } from '../components/EventsMap';
 import { EventsList } from '../components/EventsList';
 import { filterEventsByDate } from '../utils/eventFilters';
@@ -11,6 +12,8 @@ interface EventsPageProps {
 export function EventsPage({}: EventsPageProps) {
   const [filter, setFilter] = useState<'today' | 'week'>('today');
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
+  
+  const { venues, loading, error } = useEvents();
 
   const handleFilterChange = (newFilter: 'today' | 'week') => {
     setFilter(newFilter);
@@ -21,31 +24,45 @@ export function EventsPage({}: EventsPageProps) {
     setSelectedEventId(eventId);
   };
 
-  const visibleEvents = filterEventsByDate(venues, filter);
+  // Use fetched venues, fallback to mock data if loading or error
+  const venuesToDisplay = venues.length > 0 ? venues : mockVenues;
+  const visibleEvents = filterEventsByDate(venuesToDisplay, filter);
 
   return (
     <div className="events-container">
       <div className="events-header">
-        <h2>Local Events - Tulancingo</h2>
+        <h2>Eventos Locales - Tulancingo</h2>
+        {error && (
+          <div style={{ fontSize: '0.85rem', color: '#ff6b6b', marginBottom: '0.5rem' }}>
+            Using offline data: {error}
+          </div>
+        )}
+        {loading && venues.length === 0 && (
+          <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '0.5rem' }}>
+            Loading events...
+          </div>
+        )}
         <div className="filters">
-          <span className="filters-label">Filter:</span>
+          <span className="filters-label">Filtro:</span>
           <button
             className={`btn-filter ${filter === 'today' ? 'active' : ''}`}
             onClick={() => handleFilterChange('today')}
+            disabled={loading && venues.length === 0}
           >
-            Today
+            Hoy
           </button>
           <button
             className={`btn-filter ${filter === 'week' ? 'active' : ''}`}
             onClick={() => handleFilterChange('week')}
+            disabled={loading && venues.length === 0}
           >
-            This Week
+            Esta Semana
           </button>
         </div>
       </div>
       <Suspense fallback={<div style={{ flex: 1 }} />}>
         <EventsMap
-          venues={venues}
+          venues={venuesToDisplay}
           filter={filter}
           selectedEventId={selectedEventId}
           onEventSelect={handleEventSelect}

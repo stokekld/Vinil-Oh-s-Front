@@ -20,10 +20,6 @@ export function App() {
     setIsAboutModalOpen(true);
   };
 
-  const handleSupportClick = () => {
-    alert('Patreon coming soon! Follow our Instagram for updates.');
-  };
-
   return (
     <>
       <Header />
@@ -37,15 +33,14 @@ export function App() {
       </main>
       <Footer
         onAboutClick={handleAboutClick}
-        onSupportClick={handleSupportClick}
       />
       <Modal
         isOpen={isAboutModalOpen}
-        title="About Vinil Oh's Club"
+        title="About"
         onClose={() => setIsAboutModalOpen(false)}
       >
         <p>Vinil Oh's Club un espacio para amantes de la música y coleccionistas, en físico y digital, donde lo más importante es la tolerancia y el descubrimiento.</p>
-        <h3 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>Connect with us</h3>
+        <h3 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>Apóyanos en</h3>
         <p>
           <a href="https://www.instagram.com/vinilohsclub/" target="_blank" rel="noreferrer" style={{ display: 'block', marginBottom: '0.5rem' }}>
             → Instagram: @vinilohsclub

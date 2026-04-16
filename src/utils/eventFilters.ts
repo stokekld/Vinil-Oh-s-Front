@@ -1,20 +1,22 @@
 import type { Venue, Event } from '../types';
 
-/**
- * Filtra eventos por fecha según el filtro
- * Base date: 2026-03-28 (del mockup)
- */
 export function filterEventsByDate(
   venues: Venue[],
   filter: 'today' | 'week'
 ): Event[] {
-  const baseDate = new Date('2026-03-28');
+  const baseDate = new Date();
   baseDate.setHours(0, 0, 0, 0);
 
+  const tomorrowBase = new Date();
+  tomorrowBase.setDate(tomorrowBase.getDate() + 1);
+  tomorrowBase.setHours(0, 0, 0, 0);
+
   const events: (Event & { venueName: string })[] = [];
+  let eventIdCounter = 0;
 
   venues.forEach((venue) => {
     venue.events.forEach((event) => {
+      event.id = eventIdCounter++;
       const eventDate = new Date(event.date);
       eventDate.setHours(0, 0, 0, 0);
 
@@ -23,9 +25,9 @@ export function filterEventsByDate(
       if (filter === 'today') {
         isVisible = eventDate.getTime() === baseDate.getTime();
       } else if (filter === 'week') {
-        const weekEnd = new Date(baseDate);
+        const weekEnd = new Date(tomorrowBase);
         weekEnd.setDate(weekEnd.getDate() + 6);
-        isVisible = eventDate >= baseDate && eventDate <= weekEnd;
+        isVisible = eventDate >= tomorrowBase && eventDate <= weekEnd;
       }
 
       if (isVisible) {
