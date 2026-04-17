@@ -29,7 +29,6 @@ export function EventsPage({}: EventsPageProps) {
   return (
     <div className="events-container">
       <div className="events-header">
-        <h2>Eventos Locales - Tulancingo</h2>
         {error && (
           <div style={{ fontSize: '0.85rem', color: '#ff6b6b', marginBottom: '0.5rem' }}>
             Using offline data: {error}

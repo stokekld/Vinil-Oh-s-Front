@@ -22,8 +22,8 @@ interface EventsMapProps {
   onEventSelect: (eventId: number) => void;
 }
 
-const mapCenter: [number, number] = [20.0858, -98.3611];
-const zoomLevel = 15;
+const mapCenter: [number, number] = [20.083772079544264, -98.56874889077082];
+const zoomLevel = 10;
 
 export function EventsMap({
   venues,
