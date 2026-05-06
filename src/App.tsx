@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { Header } from './components/Header';
 import { Navigation } from './components/Navigation';
-import { SongsPage } from './pages/SongsPage';
 import { EventsPage } from './pages/EventsPage';
 import { Footer } from './components/Footer';
 import { Modal } from './components/Modal';
-import { useSession } from './hooks/useSession';
 
 export function App() {
-  const { tracks, loading, error } = useSession();
   const [currentPage, setCurrentPage] = useState<'songs' | 'events'>('songs');
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
