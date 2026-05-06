@@ -24,12 +24,8 @@ export function App() {
     <>
       <Header />
       <Navigation currentPage={currentPage} onPageChange={handlePageChange} />
-      <main id={currentPage === 'songs' ? 'songs-main' : 'events-main'}>
-        {currentPage === 'songs' ? (
-          <SongsPage tracks={tracks} loading={loading} error={error} />
-        ) : (
-          <EventsPage />
-        )}
+      <main id="events-main">
+        <EventsPage />
       </main>
       <Footer
         onAboutClick={handleAboutClick}
