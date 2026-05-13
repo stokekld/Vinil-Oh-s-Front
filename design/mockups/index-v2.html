@@ -1035,6 +1035,166 @@
         .highlight-marker {
             filter: drop-shadow(0 0 8px rgba(219, 192, 145, 0.9)) brightness(1.2) !important;
         }
+        
+        /* ============================================
+           SESSION PAGE - Próxima Sesión
+           ============================================ */
+        
+        #session-main {
+            overflow-y: auto;
+        }
+        
+        @media (min-width: 768px) {
+            #session-main {
+                overflow-y: hidden;
+                grid-template-columns: 300px 1fr;
+                gap: var(--border-width);
+                background: var(--primary);
+            }
+        }
+        
+        @media (max-width: 767px) {
+            #session-main .session-list-panel {
+                display: block;
+                background: var(--bg);
+            }
+        }
+        
+        .session-header {
+            padding: calc(var(--spacing-unit) * 2);
+            border-bottom: var(--border-width) solid var(--primary);
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .session-header h3 {
+            margin: 0;
+            color: var(--dark);
+        }
+        
+        .session-count {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            color: var(--dark);
+            opacity: 0.6;
+        }
+        
+        .session-list {
+            padding: var(--border-width);
+        }
+        
+        @media (min-width: 768px) {
+            .session-list {
+                padding: 0;
+            }
+        }
+        
+        .session-album-item {
+            padding: calc(var(--spacing-unit) * 1.5);
+            border-bottom: var(--border-width) solid var(--surface);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            gap: var(--spacing-unit);
+            align-items: center;
+        }
+        
+        .session-album-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--dark);
+            transform: scaleY(0);
+            transition: transform 0.2s;
+            transform-origin: top;
+        }
+        
+        .session-album-item:hover {
+            background: var(--surface);
+        }
+        
+        .session-album-item:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .session-album-item.active {
+            background: var(--surface);
+        }
+        
+        .session-album-item.active::before {
+            transform: scaleY(1);
+        }
+        
+        .session-album-thumb {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border: var(--border-width) solid var(--primary);
+            flex-shrink: 0;
+        }
+        
+        .session-album-card {
+            background: var(--bg);
+            border: var(--border-width) solid var(--primary);
+            margin-bottom: calc(var(--spacing-unit) * 2);
+        }
+        
+        .session-album-card .cover-art-container {
+            max-width: 100%;
+            margin: 0;
+            border-bottom: var(--border-width) solid var(--primary);
+        }
+        
+        .session-album-card .cover-art {
+            border: none;
+            display: block;
+            width: 100%;
+        }
+        
+        .session-album-card .session-card-body {
+            padding: calc(var(--spacing-unit) * 1.5);
+        }
+        
+        .session-album-card .track-meta {
+            margin-bottom: 0;
+        }
+        
+        .session-album-card .track-meta h2 {
+            font-size: 1.1rem;
+        }
+        
+        .session-album-card .session-card-player {
+            border-top: var(--border-width) solid var(--primary);
+            padding: calc(var(--spacing-unit) * 1.5);
+        }
+        
+        .session-album-card .tidal-embed-wrapper iframe {
+            height: 120px;
+        }
+        
+        .session-detail-panel {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .session-detail-panel {
+                display: flex;
+                flex-direction: column;
+                background: var(--bg);
+                padding: calc(var(--spacing-unit) * 2);
+                overflow-y: auto;
+                padding-right: calc(var(--spacing-unit) * 3);
+            }
+        }
     </style>
 </head>
 <body>
@@ -1048,6 +1208,7 @@
     <!-- MAIN NAVIGATION -->
     <nav class="main-nav">
         <a href="#" class="nav-link active" data-page="songs">Última Sesión</a>
+        <a href="#" class="nav-link" data-page="session">Próxima Sesión</a>
         <a href="#" class="nav-link" data-page="events">Eventos</a>
     </nav>
 
@@ -1084,6 +1245,22 @@
             <div id="map"></div>
             <div class="events-info" id="eventsInfo">
                 <p style="text-align: center; opacity: 0.6; padding: 1rem;">Click a marker to view event details</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- MAIN CONTENT - Session Page -->
+    <main id="session-main" class="main-content" style="display: none;">
+        <div class="session-list-panel">
+            <div class="session-header">
+                <h3>Próxima Sesión</h3>
+                <span class="session-count" id="sessionAlbumCount">0 albums</span>
+            </div>
+            <div class="session-list" id="sessionAlbumList"></div>
+        </div>
+        <div class="session-detail-panel" id="sessionDetailPanel">
+            <div class="no-selection" id="sessionNoSelection">
+                <p>Select an album</p>
             </div>
         </div>
     </main>
@@ -1251,6 +1428,7 @@
             
             // Hide all main elements
             document.getElementById('songs-main').style.display = 'none';
+            document.getElementById('session-main').style.display = 'none';
             document.getElementById('events-main').style.display = 'none';
             
             // Show selected main
@@ -1265,6 +1443,9 @@
                         initMap();
                     }, 100);
                 }
+            } else if (pageName === 'session') {
+                document.getElementById('session-main').style.display = 'grid';
+                renderSessionAlbums();
             }
             
             // Update nav links
@@ -1512,6 +1693,13 @@
                 selectTrack(trackId);
             });
 
+            // Session album selection (desktop)
+            document.getElementById('sessionAlbumList').addEventListener('click', (e) => {
+                const albumItem = e.target.closest('.session-album-item');
+                if (!albumItem) return;
+                selectSessionAlbum(albumItem.dataset.id);
+            });
+
             // Event filters
             document.addEventListener('click', (e) => {
                 if (e.target.classList.contains('btn-filter')) {
@@ -1589,6 +1777,146 @@
         }
 
         // ============================================
+        // SESSION DATA - Próxima Sesión
+        // ============================================
+        
+        const mockSessionAlbums = [
+            {
+                _id: "6a0394ccd4451e095af19325",
+                id: "55391797",
+                title: "Wish You Were Here",
+                artists: "Pink Floyd",
+                coverArts: [
+                    { href: "https://resources.tidal.com/images/2a1de2b6/01d7/4dee/8ded/f1b5a934ab5d/1280x1280.jpg" },
+                    { href: "https://resources.tidal.com/images/2a1de2b6/01d7/4dee/8ded/f1b5a934ab5d/1080x1080.jpg" },
+                    { href: "https://resources.tidal.com/images/2a1de2b6/01d7/4dee/8ded/f1b5a934ab5d/750x750.jpg" },
+                    { href: "https://resources.tidal.com/images/2a1de2b6/01d7/4dee/8ded/f1b5a934ab5d/640x640.jpg" },
+                    { href: "https://resources.tidal.com/images/2a1de2b6/01d7/4dee/8ded/f1b5a934ab5d/320x320.jpg" },
+                    { href: "https://resources.tidal.com/images/2a1de2b6/01d7/4dee/8ded/f1b5a934ab5d/160x160.jpg" },
+                    { href: "https://resources.tidal.com/images/2a1de2b6/01d7/4dee/8ded/f1b5a934ab5d/80x80.jpg" }
+                ]
+            },
+            {
+                _id: "6a0394ccd4451e095af1932d",
+                id: "247701424",
+                title: "Animals (2018 Remix)",
+                artists: "Pink Floyd",
+                coverArts: [
+                    { href: "https://resources.tidal.com/images/86484870/6ffb/41ac/83b3/9ba029e540fe/1280x1280.jpg" },
+                    { href: "https://resources.tidal.com/images/86484870/6ffb/41ac/83b3/9ba029e540fe/1080x1080.jpg" },
+                    { href: "https://resources.tidal.com/images/86484870/6ffb/41ac/83b3/9ba029e540fe/750x750.jpg" },
+                    { href: "https://resources.tidal.com/images/86484870/6ffb/41ac/83b3/9ba029e540fe/640x640.jpg" },
+                    { href: "https://resources.tidal.com/images/86484870/6ffb/41ac/83b3/9ba029e540fe/320x320.jpg" },
+                    { href: "https://resources.tidal.com/images/86484870/6ffb/41ac/83b3/9ba029e540fe/160x160.jpg" },
+                    { href: "https://resources.tidal.com/images/86484870/6ffb/41ac/83b3/9ba029e540fe/80x80.jpg" }
+                ]
+            }
+        ];
+
+        let selectedSessionAlbumId = null;
+
+        function renderSessionAlbums() {
+            const list = document.getElementById('sessionAlbumList');
+            const isMobile = window.innerWidth < 768;
+            
+            document.getElementById('sessionAlbumCount').textContent = `${mockSessionAlbums.length} albums`;
+
+            if (isMobile) {
+                list.innerHTML = mockSessionAlbums.map(album => {
+                    const coverUrl = album.coverArts[2]?.href || album.coverArts[0]?.href;
+                    const playerHtml = album.id ? `
+                        <div class="tidal-embed-wrapper">
+                            <iframe src="https://embed.tidal.com/albums/${album.id}" width="100%" height="120" allow="encrypted-media; fullscreen; clipboard-write https://embed.tidal.com; web-share" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox" style="color-scheme: dark" title="TIDAL Embed Player"></iframe>
+                        </div>
+                    ` : '';
+
+                    return `
+                        <div class="session-album-card">
+                            <div class="cover-art-container">
+                                <img src="${coverUrl}" alt="${album.title}" class="cover-art" onerror="this.replaceWith(createPlaceholder())" />
+                            </div>
+                            <div class="session-card-body">
+                                <div class="track-meta">
+                                    <h2>${album.title}</h2>
+                                    <div class="meta-row">
+                                        <div class="meta-label">Artist</div>
+                                        <div class="meta-value">${album.artists}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="session-card-player">
+                                <label class="player-label">Play on Tidal</label>
+                                ${playerHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                list.innerHTML = mockSessionAlbums.map(album => {
+                    const thumbUrl = album.coverArts[2]?.href || album.coverArts[0]?.href;
+                    return `
+                        <div class="session-album-item${album._id === selectedSessionAlbumId ? ' active' : ''}" data-id="${album._id}">
+                            <img src="${thumbUrl}" alt="${album.title}" class="session-album-thumb" />
+                            <div>
+                                <div class="track-title">${album.title}</div>
+                                <div class="track-artist">${album.artists}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                if (selectedSessionAlbumId) {
+                    renderSessionAlbumDetail(selectedSessionAlbumId);
+                } else {
+                    document.getElementById('sessionDetailPanel').innerHTML = '<div class="no-selection"><p>Select an album</p></div>';
+                }
+            }
+        }
+
+        function renderSessionAlbumDetail(albumId) {
+            const album = mockSessionAlbums.find(a => a._id === albumId);
+            if (!album) return;
+
+            const detailPanel = document.getElementById('sessionDetailPanel');
+            const coverUrl = album.coverArts[2]?.href || album.coverArts[0]?.href;
+
+            const playerHtml = album.id ? `
+                <div class="tidal-player-container">
+                    <label class="player-label">Play on Tidal</label>
+                    <div class="tidal-embed-wrapper">
+                        <iframe src="https://embed.tidal.com/albums/${album.id}" width="100%" height="120" allow="encrypted-media; fullscreen; clipboard-write https://embed.tidal.com; web-share" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox" style="color-scheme: dark" title="TIDAL Embed Player"></iframe>
+                    </div>
+                </div>
+            ` : '';
+
+            detailPanel.innerHTML = `
+                <div class="track-detail">
+                    <div class="cover-art-container">
+                        <img src="${coverUrl}" alt="${album.title}" class="cover-art" onerror="this.replaceWith(createPlaceholder())" />
+                    </div>
+                    <div class="track-meta">
+                        <h2>${album.title}</h2>
+                        <div class="meta-row">
+                            <div class="meta-label">Artist</div>
+                            <div class="meta-value">${album.artists}</div>
+                        </div>
+                    </div>
+                    ${playerHtml}
+                </div>
+            `;
+        }
+
+        function selectSessionAlbum(albumId) {
+            selectedSessionAlbumId = albumId;
+
+            document.querySelectorAll('.session-album-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.id === albumId);
+            });
+
+            renderSessionAlbumDetail(albumId);
+        }
+
+        // ============================================
         // RESPONSIVE HANDLING
         // ============================================
         
@@ -1599,6 +1927,10 @@
                 if (selectedTrackId) {
                     renderTrackDetail(selectedTrackId);
                 }
+            }
+            
+            if (currentPage === 'session') {
+                renderSessionAlbums();
             }
             
             if (map) {
