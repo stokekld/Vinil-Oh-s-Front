@@ -1053,9 +1053,29 @@
             }
         }
         
+        .session-list-panel {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .session-list-panel {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            #session-main .session-list-panel {
+                border-right: var(--border-width) solid var(--primary);
+                background: var(--bg);
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+        }
+        
         @media (max-width: 767px) {
             #session-main .session-list-panel {
-                display: block;
+                display: grid;
+                grid-template-rows: auto 1fr;
+                min-height: 0;
                 background: var(--bg);
             }
         }
@@ -1075,13 +1095,6 @@
         .session-header h3 {
             margin: 0;
             color: var(--dark);
-        }
-        
-        .session-count {
-            font-family: var(--font-display);
-            font-size: 0.75rem;
-            color: var(--dark);
-            opacity: 0.6;
         }
         
         .session-list {
@@ -1253,8 +1266,7 @@
     <main id="session-main" class="main-content" style="display: none;">
         <div class="session-list-panel">
             <div class="session-header">
-                <h3>Próxima Sesión</h3>
-                <span class="session-count" id="sessionAlbumCount">0 albums</span>
+                <h3 id="sessionAlbumCount">0 albums</h3>
             </div>
             <div class="session-list" id="sessionAlbumList"></div>
         </div>
