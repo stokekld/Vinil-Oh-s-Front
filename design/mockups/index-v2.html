@@ -1147,14 +1147,6 @@
             transform: scaleY(1);
         }
         
-        .session-album-thumb {
-            width: 48px;
-            height: 48px;
-            object-fit: cover;
-            border: var(--border-width) solid var(--primary);
-            flex-shrink: 0;
-        }
-        
         .session-album-card {
             background: var(--bg);
             border: var(--border-width) solid var(--primary);
@@ -1868,7 +1860,6 @@
                     const thumbUrl = album.coverArts[2]?.href || album.coverArts[0]?.href;
                     return `
                         <div class="session-album-item${album._id === selectedSessionAlbumId ? ' active' : ''}" data-id="${album._id}">
-                            <img src="${thumbUrl}" alt="${album.title}" class="session-album-thumb" />
                             <div>
                                 <div class="track-title">${album.title}</div>
                                 <div class="track-artist">${album.artists}</div>
