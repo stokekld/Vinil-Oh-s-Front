@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Vinil Ohs API
-  description: API for interacting with Tidal playlist data and session management
+  description: API for interacting with Tidal playlist data, session management, and event management
   version: 1.0.0
 servers:
   - url: http://localhost:3000
@@ -216,6 +216,162 @@ paths:
                 error: 'Internal Server Error'
                 message: 'An unexpected error occurred while creating the session.'
 
+  /v1/session/next:
+    post:
+      summary: Create a next session with album info
+      description: |
+        **⚠️ LOCALHOST ONLY** - This endpoint is restricted to localhost access (127.0.0.1 or ::1).
+
+        Creates a next session with album info data. Processes the provided album info items
+        and regenerates the next session collection with the new data.
+
+        Each time this endpoint is called, the entire next session collection is cleared and recreated with fresh data.
+      operationId: createNextSession
+      tags:
+        - Session
+        - Playlists
+      requestBody:
+        required: true
+        description: Album info data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlbumResponse'
+            example:
+              data:
+                - id: '83ebc562-6c28-4f98-8d4e-ff7cb9844c06'
+                  title: 'Album Title'
+                  artists: 'Artist Name'
+                  coverArts:
+                    - href: 'https://example.com/cover.jpg'
+      responses:
+        '200':
+          description: Next session created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Next session created'
+                  itemsCount:
+                    type: integer
+                    description: Number of album items processed and saved to MongoDB
+                    example: 1
+              example:
+                success: true
+                message: 'Next session created'
+                itemsCount: 1
+        '400':
+          description: Invalid request body or missing required fields
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Bad Request'
+                  message:
+                    type: string
+                    example: 'Missing required field: data is required'
+              example:
+                error: 'Bad Request'
+                message: 'Missing required field: data is required'
+        '403':
+          description: Forbidden - Request not from localhost
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Forbidden'
+                  message:
+                    type: string
+                    example: 'This endpoint is only accessible from localhost'
+              example:
+                error: 'Forbidden'
+                message: 'This endpoint is only accessible from localhost'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: 'Internal Server Error'
+                message: 'An unexpected error occurred while creating the next session.'
+
+    get:
+      summary: Get next session album info
+      description: |
+        Retrieves the current next session album info stored in MongoDB.
+        Returns all album info items currently saved in the next session collection.
+
+        **Public endpoint** - Accessible from any IP address.
+      operationId: getNextSession
+      tags:
+        - Session
+        - Playlists
+      responses:
+        '200':
+          description: Successfully retrieved next session album info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Next session retrieved successfully'
+                  data:
+                    type: array
+                    description: Array of album info items in the next session
+                    items:
+                      $ref: '#/components/schemas/AlbumSimpleInfo'
+                  itemsCount:
+                    type: integer
+                    description: Total number of album items
+                    example: 1
+              examples:
+                successWithItems:
+                  summary: Successful response with album info items
+                  value:
+                    success: true
+                    message: 'Next session retrieved successfully'
+                    data:
+                      - id: '83ebc562-6c28-4f98-8d4e-ff7cb9844c06'
+                        title: 'Album Title'
+                        artists: 'Artist Name'
+                        coverArts:
+                          - href: 'https://example.com/cover.jpg'
+                    itemsCount: 1
+                emptyAlbumInfo:
+                  summary: Successful response with no items
+                  value:
+                    success: true
+                    message: 'Next session retrieved successfully'
+                    data: []
+                    itemsCount: 0
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: 'Internal Server Error'
+                message: 'An unexpected error occurred while retrieving the next session.'
+
   /v1/tidal/playlist/{id}:
     get:
       summary: Get Tidal playlist items
@@ -392,6 +548,427 @@ paths:
                     type: string
                     description: Raw response body from Tidal API
 
+  /v1/tidal/albums:
+    post:
+      summary: Get album info from Tidal
+      description: |
+        **⚠️ LOCALHOST ONLY** - This endpoint is restricted to localhost access (127.0.0.1 or ::1).
+
+        Fetches Tidal album data for a list of album IDs.
+
+        This endpoint:
+        1. Validates that albumIds is an array of strings
+        2. Acquires a valid Tidal API token using the token manager
+        3. Requests album data from Tidal for each album ID
+        4. Returns simplified album information
+
+        ### Headers
+        Automatically included by the server:
+        - `Authorization: Bearer {token}` - Tidal API authentication token
+        - `accept: application/vnd.api+json` - JSON:API format request
+      operationId: getAlbums
+      tags:
+        - Tidal
+        - Playlists
+      requestBody:
+        required: true
+        description: List of Tidal album IDs
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - albumIds
+              properties:
+                albumIds:
+                  type: array
+                  description: Array of Tidal album UUIDs
+                  items:
+                    type: string
+                    format: uuid
+                    example: 83ebc562-6c28-4f98-8d4e-ff7cb9844c06
+            example:
+              albumIds:
+                - 83ebc562-6c28-4f98-8d4e-ff7cb9844c06
+                - a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8
+      responses:
+        '200':
+          description: Successfully retrieved album data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Array of album data
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: Album ID
+                        title:
+                          type: string
+                          description: Album title
+                        artists:
+                          type: string
+                          description: Artist name(s)
+                        coverArts:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                format: uri
+                                description: URL to the cover art image
+                      additionalProperties: true
+              examples:
+                successWithAlbums:
+                  summary: Successful response with album data
+                  value:
+                    data:
+                      - id: '83ebc562-6c28-4f98-8d4e-ff7cb9844c06'
+                        title: 'Album Title'
+                        artists: 'Artist Name'
+                        coverArts:
+                          - href: 'https://example.com/cover.jpg'
+        '400':
+          description: Invalid album IDs format
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Bad Request'
+                  message:
+                    type: string
+                    example: 'albumIds must be an array of strings.'
+              example:
+                error: 'Bad Request'
+                message: 'albumIds must be an array of strings.'
+        '403':
+          description: Forbidden - Request not from localhost
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Forbidden'
+                  message:
+                    type: string
+                    example: 'This endpoint is only accessible from localhost'
+              example:
+                error: 'Forbidden'
+                message: 'This endpoint is only accessible from localhost'
+        '503':
+          description: Service Unavailable - Token manager failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Service Unavailable'
+                  message:
+                    type: string
+                    example: 'Failed to acquire Tidal API token. Please try again later.'
+              example:
+                error: 'Service Unavailable'
+                message: 'Failed to acquire Tidal API token. Please try again later.'
+        '504':
+          description: Gateway Timeout - Tidal API did not respond
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Gateway Timeout'
+                  message:
+                    type: string
+                    example: 'Tidal API request timed out. Please try again later.'
+              example:
+                error: 'Gateway Timeout'
+                message: 'Tidal API request timed out. Please try again later.'
+        '4xx':
+          description: Tidal API error (4xx response from Tidal)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 'Tidal API Error with HTTP status code'
+                  message:
+                    type: string
+                    description: Error message from Tidal API
+                  responseData:
+                    type: string
+                    description: Raw response body from Tidal API
+        '5xx':
+          description: Tidal API error (5xx response from Tidal)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 'Tidal API Error with HTTP status code'
+                  message:
+                    type: string
+                    description: Error message from Tidal API
+                  responseData:
+                    type: string
+                    description: Raw response body from Tidal API
+
+  /v1/event:
+    get:
+      summary: Get upcoming events for the next 7 days
+      description: |
+        Retrieves all events scheduled for the next 7 days in the America/Mexico_City timezone.
+        Returns events grouped by venue with complete venue information and geographic coordinates.
+        
+        **Public endpoint** - Accessible from any IP address.
+      operationId: getEvents
+      tags:
+        - Events
+        - Venues
+      responses:
+        '200':
+          description: Successfully retrieved events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Events retrieved successfully'
+                  data:
+                    type: array
+                    description: Array of venues with associated events
+                    items:
+                      $ref: '#/components/schemas/VenueWithEvents'
+              examples:
+                successWithEvents:
+                  summary: Successful response with events
+                  value:
+                    success: true
+                    message: 'Events retrieved successfully'
+                    data:
+                      - venueId: '507f1f77bcf86cd799439011'
+                        name: 'The Great Venue'
+                        latitude: 37.7749
+                        longitude: -122.4194
+                        events:
+                          - name: 'Sample Event'
+                            date: '2026-04-15T20:00:00.000Z'
+                            links:
+                              instagram: 'https://instagram.com/sampleevent'
+        '404':
+          description: No events found for the next 7 days
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: 'No Events Found'
+                message: 'No events found'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: 'Internal Server Error'
+                message: 'An unexpected error occurred while retrieving the events.'
+
+  /v1/event/venue:
+    post:
+      summary: Create a new venue
+      description: |
+        Creates a new venue location with geographic coordinates.
+        
+        **Public endpoint** - Accessible from any IP address.
+      operationId: createVenue
+      tags:
+        - Events
+        - Venues
+      requestBody:
+        required: true
+        description: Venue information
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Venue'
+            example:
+              name: 'The Great Venue'
+              longitude: -122.4194
+              latitude: 37.7749
+      responses:
+        '200':
+          description: Venue created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Venue created successfully'
+              example:
+                success: true
+                message: 'Venue created successfully'
+        '400':
+          description: Invalid request body or missing required fields
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Bad Request'
+                  message:
+                    type: string
+                    example: 'Venue name, longitude, and latitude are required.'
+              example:
+                error: 'Bad Request'
+                message: 'Venue name, longitude, and latitude are required.'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: 'Internal Server Error'
+                message: 'An unexpected error occurred while creating the venue.'
+
+  /v1/event/{venueId}:
+    post:
+      summary: Create a new event at a venue
+      description: |
+        Creates a new event at an existing venue location.
+        The event must reference a valid venue ID.
+        
+        **Public endpoint** - Accessible from any IP address.
+      operationId: createEvent
+      tags:
+        - Events
+        - Venues
+      parameters:
+        - name: venueId
+          in: path
+          description: ID of the venue where the event will take place (MongoDB ObjectId)
+          required: true
+          schema:
+            type: string
+            example: '507f1f77bcf86cd799439011'
+      requestBody:
+        required: true
+        description: Event information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the event
+                  example: 'Sample Event'
+                date:
+                  type: string
+                  format: date-time
+                  description: Date and time of the event (ISO 8601 format)
+                  example: '2026-04-15T20:00:00.000Z'
+                links:
+                  $ref: '#/components/schemas/EventLinks'
+              required:
+                - name
+                - date
+            example:
+              name: 'Sample Event'
+              date: '2026-04-15T20:00:00.000Z'
+              links:
+                instagram: 'https://instagram.com/sampleevent'
+                facebook: 'https://facebook.com/events/sampleevent'
+      responses:
+        '200':
+          description: Event created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Event created successfully'
+              example:
+                success: true
+                message: 'Event created successfully'
+        '400':
+          description: Invalid request body or missing required fields
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Bad Request'
+                  message:
+                    type: string
+                    example: 'Event name and date are required.'
+              example:
+                error: 'Bad Request'
+                message: 'Event name and date are required.'
+        '404':
+          description: Venue not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Venue Not Found'
+                  message:
+                    type: string
+                    example: 'No venue found with ID 507f1f77bcf86cd799439011'
+              example:
+                error: 'Venue Not Found'
+                message: 'No venue found with ID 507f1f77bcf86cd799439011'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: 'Internal Server Error'
+                message: 'An unexpected error occurred while creating the event.'
+
 components:
   schemas:
     PlaylistItem:
@@ -529,6 +1106,88 @@ components:
           example:
             - href: 'https://example.com/cover.jpg'
 
+    Venue:
+      type: object
+      description: Venue information for events
+      properties:
+        name:
+          type: string
+          description: Name of the venue
+          example: 'The Great Venue'
+        latitude:
+          type: number
+          format: double
+          description: Latitude coordinate of the venue
+          example: 37.7749
+        longitude:
+          type: number
+          format: double
+          description: Longitude coordinate of the venue
+          example: -122.4194
+      required:
+        - name
+        - latitude
+        - longitude
+
+    EventLinks:
+      type: object
+      description: Social media and event links
+      properties:
+        instagram:
+          type: string
+          format: uri
+          description: Instagram profile URL
+          example: 'https://instagram.com/sampleevent'
+        facebook:
+          type: string
+          format: uri
+          description: Facebook event URL
+          example: 'https://facebook.com/events/sampleevent'
+
+    EventWithVenue:
+      type: object
+      description: Event information
+      properties:
+        name:
+          type: string
+          description: Name of the event
+          example: 'Sample Event'
+        date:
+          type: string
+          format: date-time
+          description: Date and time of the event (ISO 8601 format)
+          example: '2026-04-15T20:00:00.000Z'
+        links:
+          $ref: '#/components/schemas/EventLinks'
+
+    VenueWithEvents:
+      type: object
+      description: Venue with all associated events
+      properties:
+        venueId:
+          type: string
+          description: Unique identifier of the venue
+          example: '507f1f77bcf86cd799439011'
+        name:
+          type: string
+          description: Name of the venue
+          example: 'The Great Venue'
+        latitude:
+          type: number
+          format: double
+          description: Latitude coordinate of the venue
+          example: 37.7749
+        longitude:
+          type: number
+          format: double
+          description: Longitude coordinate of the venue
+          example: -122.4194
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventWithVenue'
+          description: Array of events at this venue
+
     ErrorResponse:
       type: object
       description: Standard error response
@@ -543,6 +1202,46 @@ components:
         - error
         - message
 
+    AlbumSimpleInfo:
+      type: object
+      description: Album information stored in the next session
+      properties:
+        id:
+          type: string
+          description: Unique album identifier
+          example: '83ebc562-6c28-4f98-8d4e-ff7cb9844c06'
+        title:
+          type: string
+          description: Album title
+          example: 'Album Title'
+        artists:
+          type: string
+          description: Artist name(s), comma-separated if multiple
+          example: 'Artist Name'
+        coverArts:
+          type: array
+          description: Array of cover art images
+          items:
+            type: object
+            properties:
+              href:
+                type: string
+                format: uri
+                description: URL to the cover art image
+                example: 'https://example.com/cover.jpg'
+
+    AlbumResponse:
+      type: object
+      description: Request body for creating a next session with album info
+      properties:
+        data:
+          type: array
+          description: Array of album info items
+          items:
+            $ref: '#/components/schemas/AlbumSimpleInfo'
+      required:
+        - data
+
 tags:
   - name: Health
     description: System health and status
@@ -552,3 +1251,7 @@ tags:
     description: Tidal API integration endpoints
   - name: Playlists
     description: Playlist operations (both Tidal and session playlists)
+  - name: Events
+    description: Event management endpoints
+  - name: Venues
+    description: Venue management endpoints
