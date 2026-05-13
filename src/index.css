@@ -1101,3 +1101,165 @@ button:hover {
 .highlight-marker {
   filter: drop-shadow(0 0 8px rgba(219, 192, 145, 0.9)) brightness(1.2) !important;
 }
+
+/* ============================================
+   SESSION PAGE - Próxima Sesión
+   ============================================ */
+
+#session-main {
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  #session-main {
+    overflow-y: hidden;
+    grid-template-columns: 300px 1fr;
+    gap: var(--border-width);
+    background: var(--primary);
+  }
+}
+
+.session-list-panel {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .session-list-panel {
+    display: flex;
+    flex-direction: column;
+    border-right: var(--border-width) solid var(--primary);
+    background: var(--bg);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 767px) {
+  #session-main .session-list-panel {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    min-height: 0;
+    background: var(--bg);
+  }
+}
+
+.session-header {
+  padding: calc(var(--spacing-unit) * 2);
+  border-bottom: var(--border-width) solid var(--primary);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.session-header h3 {
+  margin: 0;
+  color: var(--dark);
+}
+
+.session-list {
+  padding: var(--border-width);
+}
+
+@media (min-width: 768px) {
+  .session-list {
+    padding: 0;
+  }
+}
+
+.session-album-item {
+  padding: calc(var(--spacing-unit) * 1.5);
+  border-bottom: var(--border-width) solid var(--surface);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  display: flex;
+  gap: var(--spacing-unit);
+  align-items: center;
+}
+
+.session-album-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--dark);
+  transform: scaleY(0);
+  transition: transform 0.2s;
+  transform-origin: top;
+}
+
+.session-album-item:hover {
+  background: var(--surface);
+}
+
+.session-album-item:hover::before {
+  transform: scaleY(1);
+}
+
+.session-album-item.active {
+  background: var(--surface);
+}
+
+.session-album-item.active::before {
+  transform: scaleY(1);
+}
+
+.session-album-card {
+  background: var(--bg);
+  border: var(--border-width) solid var(--primary);
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.session-album-card .cover-art-container {
+  max-width: 100%;
+  margin: 0;
+  border-bottom: var(--border-width) solid var(--primary);
+}
+
+.session-album-card .cover-art {
+  border: none;
+  display: block;
+  width: 100%;
+}
+
+.session-album-card .session-card-body {
+  padding: calc(var(--spacing-unit) * 1.5);
+}
+
+.session-album-card .track-meta {
+  margin-bottom: 0;
+}
+
+.session-album-card .track-meta h2 {
+  font-size: 1.1rem;
+}
+
+.session-album-card .session-card-player {
+  border-top: var(--border-width) solid var(--primary);
+  padding: calc(var(--spacing-unit) * 1.5);
+}
+
+.session-album-card .tidal-embed-wrapper iframe {
+  height: 120px;
+}
+
+.session-detail-panel {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .session-detail-panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    padding: calc(var(--spacing-unit) * 2);
+    overflow-y: auto;
+    padding-right: calc(var(--spacing-unit) * 3);
+  }
+}

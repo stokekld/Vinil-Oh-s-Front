@@ -1,14 +1,16 @@
 interface TidalPlayerProps {
   tidalId: string | number;
+  type?: 'track' | 'album';
 }
 
-export function TidalPlayer({ tidalId }: TidalPlayerProps) {
+export function TidalPlayer({ tidalId, type = 'track' }: TidalPlayerProps) {
+  const embedPath = type === 'album' ? 'albums' : 'tracks';
   return (
     <div className="tidal-player-container">
       <label className="player-label">Play on Tidal</label>
       <div className="tidal-embed-wrapper">
         <iframe
-          src={`https://embed.tidal.com/tracks/${tidalId}`}
+          src={`https://embed.tidal.com/${embedPath}/${tidalId}`}
           width="100%"
           height="120"
           allow="encrypted-media; fullscreen; clipboard-write https://embed.tidal.com; web-share"

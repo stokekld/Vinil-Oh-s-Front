@@ -1,6 +1,8 @@
+type Page = 'songs' | 'session' | 'events';
+
 interface NavigationProps {
-  currentPage: 'songs' | 'events';
-  onPageChange: (page: 'songs' | 'events') => void;
+  currentPage: Page;
+  onPageChange: (page: Page) => void;
 }
 
 export function Navigation({ currentPage, onPageChange }: NavigationProps) {
@@ -15,6 +17,16 @@ export function Navigation({ currentPage, onPageChange }: NavigationProps) {
         }}
       >
         Última Sesión
+      </a>
+      <a
+        href="#"
+        className={`nav-link ${currentPage === 'session' ? 'active' : ''}`}
+        onClick={(e) => {
+          e.preventDefault();
+          onPageChange('session');
+        }}
+      >
+        Próxima Sesión
       </a>
       <a
         href="#"

@@ -50,6 +50,24 @@ export interface ApiEventResponse {
   data: Venue[];
 }
 
+/* ============================================
+   SESSION (ALBUM) TYPES
+   ============================================ */
+
+export interface Album {
+  id: string;
+  title: string;
+  artists: string;
+  coverArts: CoverArt[];
+}
+
+export interface NextSessionResponse {
+  success: boolean;
+  message: string;
+  data: Album[];
+  itemsCount: number;
+}
+
 // Fully normalized venue with guaranteed required fields
 export interface NormalizedVenue {
   id: number;
