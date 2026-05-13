@@ -1,18 +1,15 @@
 import { useState } from 'react';
 import { Header } from './components/Header';
 import { Navigation } from './components/Navigation';
-import { SongsPage } from './pages/SongsPage';
 import { SessionPage } from './pages/SessionPage';
 import { EventsPage } from './pages/EventsPage';
 import { Footer } from './components/Footer';
 import { Modal } from './components/Modal';
-import { useSession } from './hooks/useSession';
 import { useNextSession } from './hooks/useNextSession';
 
 export function App() {
-  const { tracks, loading, error } = useSession();
   const { albums, loading: albumsLoading, error: albumsError } = useNextSession();
-  const [currentPage, setCurrentPage] = useState<'songs' | 'session' | 'events'>('songs');
+  const [currentPage, setCurrentPage] = useState<'songs' | 'session' | 'events'>('session');
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
   const handlePageChange = (page: 'songs' | 'session' | 'events') => {
@@ -30,9 +27,7 @@ export function App() {
       <Header />
       <Navigation currentPage={currentPage} onPageChange={handlePageChange} />
       <main id={mainId}>
-        {currentPage === 'songs' ? (
-          <SongsPage tracks={tracks} loading={loading} error={error} />
-        ) : currentPage === 'session' ? (
+        {currentPage === 'session' ? (
           <SessionPage albums={albums} loading={albumsLoading} error={albumsError} />
         ) : (
           <EventsPage />
